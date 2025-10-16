@@ -10,7 +10,8 @@ const UserRegistrationApp = ({ onNavigate }) => {
   const videoContainerRef = useRef(null);
   const streamRef = useRef(null);
 
-  const API_BASE = 'http://127.0.0.1:5000';
+  const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space
+';
 
   // Detect mobile device
   useEffect(() => {
