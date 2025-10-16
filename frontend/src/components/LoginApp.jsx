@@ -6,6 +6,19 @@ const LoginApp = ({ onNavigate }) => {
   const [popup, setPopup] = useState(null);
 
   const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space';
+// tapi tambahkan proxy fetch:
+const response = await fetch(`${API_BASE}/login`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({
+    user_id: form.userId,
+    password: form.password
+  }),
+  mode: 'cors' // ⬅️ penting untuk frontend
+});
 
   const handleLogin = async (e) => {
     e.preventDefault();
