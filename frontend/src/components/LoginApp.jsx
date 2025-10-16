@@ -5,7 +5,8 @@ const LoginApp = ({ onNavigate }) => {
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState(null);
 
-  const API_BASE = 'http://127.0.0.1:5000';
+  const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space
+    ';
 
   const handleLogin = async (e) => {
     e.preventDefault();
