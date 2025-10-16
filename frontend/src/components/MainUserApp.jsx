@@ -16,8 +16,7 @@ const MainUserApp = ({ onNavigate }) => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState(null);
 
-  const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space
-';
+  const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space';
 
   // 🔥 NEW: Dapatkan lokasi user
   const getUserLocation = () => {
