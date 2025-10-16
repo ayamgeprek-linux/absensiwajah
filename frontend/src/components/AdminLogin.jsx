@@ -18,16 +18,15 @@ const AdminLogin = ({ onNavigate }) => {
     try {
       setLoading(true);
 
-      const response = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: form.username, // ✅ Fix: gunakan user_id bukan username
-          password: form.password
-        }),
-      });
+      const response = await fetch(`${API_BASE}/admin/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    username: form.username,
+    password: form.password
+  }),
+});
+
 
       const result = await response.json();
       console.log('🔍 Login response:', result);
