@@ -18,7 +18,7 @@ const AdminLogin = ({ onNavigate }) => {
     try {
       setLoading(true);
       
-      const response = await fetch(`${API_BASE}/admin/login`, {
+      const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
