@@ -29,8 +29,7 @@ const AdminPanel = ({ onNavigate }) => {
   });
   const [testResult, setTestResult] = useState(null);
 
-  const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space
-';
+  const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space';
 
   // 🔥 JWT API Call
   const callAPI = async (endpoint, data = null, method = 'POST') => {
