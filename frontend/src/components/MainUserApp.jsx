@@ -12,10 +12,9 @@ const MainUserApp = ({ onNavigate }) => {
   const videoContainerRef = useRef(null);
   const streamRef = useRef(null);
 
-  // 🔥 NEW: State untuk lokasi
+  // 🔥 State untuk lokasi
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
-  const [locationError, setLocationError] = useState(null);
 
   const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space';
 
@@ -30,7 +29,7 @@ const MainUserApp = ({ onNavigate }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 🔥 NEW: Dapatkan lokasi user
+  // 🔥 Dapatkan lokasi user
   const getUserLocation = () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -39,7 +38,6 @@ const MainUserApp = ({ onNavigate }) => {
       }
 
       setLocationLoading(true);
-      setLocationError(null);
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -53,21 +51,7 @@ const MainUserApp = ({ onNavigate }) => {
           resolve(location);
         },
         (error) => {
-          let errorMessage = 'Gagal mendapatkan lokasi: ';
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage += 'Izin lokasi ditolak';
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage += 'Informasi lokasi tidak tersedia';
-              break;
-            case error.TIMEOUT:
-              errorMessage += 'Request lokasi timeout';
-              break;
-            default:
-              errorMessage += 'Error tidak diketahui';
-          }
-          setLocationError(errorMessage);
+          let errorMessage = 'Gagal mendapatkan lokasi';
           setLocationLoading(false);
           reject(new Error(errorMessage));
         },
@@ -80,7 +64,7 @@ const MainUserApp = ({ onNavigate }) => {
     });
   };
 
-  // 🔥 NEW: Request permission lokasi
+  // 🔥 Request permission lokasi
   const requestLocationPermission = async () => {
     try {
       setLocationLoading(true);
@@ -91,7 +75,7 @@ const MainUserApp = ({ onNavigate }) => {
       return location;
     } catch (error) {
       showPopup('warning', 'Lokasi Gagal', 
-        `${error.message}\n\nAbsensi tetap bisa dilakukan tanpa lokasi, tetapi mungkin ditolak sistem.`
+        `${error.message}\n\nAbsensi tetap bisa dilakukan tanpa lokasi.`
       );
       return null;
     }
@@ -193,10 +177,9 @@ const MainUserApp = ({ onNavigate }) => {
         return;
       }
 
-      // 🔥 NEW: Dapatkan lokasi sebelum absensi
+      // 🔥 Dapatkan lokasi sebelum absensi
       let location = userLocation;
       if (!location) {
-        showPopup('info', 'Mendapatkan Lokasi', 'Sedang mendapatkan lokasi Anda...');
         location = await requestLocationPermission();
       }
 
@@ -204,7 +187,7 @@ const MainUserApp = ({ onNavigate }) => {
       const formData = new FormData();
       formData.append('file', imageBlob, 'attendance.jpg');
 
-      // 🔥 NEW: Tambahkan data lokasi ke formData
+      // 🔥 Tambahkan data lokasi ke formData
       if (location) {
         formData.append('latitude', location.latitude.toString());
         formData.append('longitude', location.longitude.toString());
@@ -217,7 +200,6 @@ const MainUserApp = ({ onNavigate }) => {
           const user = result.recognized_user;
           setUserProfile(user);
           
-          // 🔥 NEW: Tampilkan info lokasi di popup
           let popupMessage = `Selamat ${user.name}!\n\n🆔 ${user.user_id}\n📊 Tingkat Kemiripan: ${(user.similarity * 100).toFixed(1)}%\n⏰ ${new Date().toLocaleTimeString('id-ID')}`;
           
           if (result.location) {
@@ -247,14 +229,12 @@ const MainUserApp = ({ onNavigate }) => {
     try {
       const result = await callAPI('/attendance-records', null, 'GET');
       if (result.success) {
-        // Jika user sudah terdeteksi, filter recordsnya
         if (userProfile) {
           const userRecords = result.records.filter(record => 
             record.user_id === userProfile.user_id
           );
           setAttendanceRecords(userRecords);
         } else {
-          // Kalau belum ada user terdeteksi, tampilkan semua records terbaru
           setAttendanceRecords(result.records.slice(0, 20));
         }
       }
@@ -377,7 +357,7 @@ const MainUserApp = ({ onNavigate }) => {
     );
   };
 
-  // 🔥 NEW: Location Status Component
+  // 🔥 Location Status Component
   const LocationStatus = () => (
     <div style={styles.locationStatus}>
       <div style={styles.locationHeader}>
@@ -398,7 +378,7 @@ const MainUserApp = ({ onNavigate }) => {
         </div>
       ) : (
         <div style={styles.locationWarning}>
-          <span style={styles.locationWarningText}>⚠️ Lokasi Belum Siap</span>
+          <span style={styles.locationWarningText}>📍 Lokasi Belum Siap</span>
           <button 
             onClick={requestLocationPermission}
             style={styles.locationButton}
@@ -407,6 +387,38 @@ const MainUserApp = ({ onNavigate }) => {
           </button>
         </div>
       )}
+    </div>
+  );
+
+  // Navigation Tabs dengan desain modern
+  const NavigationTabs = () => (
+    <div style={styles.navContainer}>
+      <div style={styles.navBackground}></div>
+      <div style={styles.navContent}>
+        {[
+          { id: 'attendance', label: 'Absensi', icon: '📷', desc: 'Ambil absensi harian' },
+          { id: 'profile', label: 'Profil', icon: '👤', desc: 'Lihat profil Anda' },
+          { id: 'records', label: 'Riwayat', icon: '📊', desc: 'Riwayat absensi' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setCurrentView(tab.id)}
+            style={{
+              ...styles.navTab,
+              ...(currentView === tab.id && styles.navTabActive)
+            }}
+          >
+            <div style={styles.navTabIcon}>{tab.icon}</div>
+            <div style={styles.navTabText}>
+              <div style={styles.navTabLabel}>{tab.label}</div>
+              <div style={styles.navTabDesc}>{tab.desc}</div>
+            </div>
+            {currentView === tab.id && (
+              <div style={styles.navTabActiveIndicator}></div>
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   );
 
@@ -433,7 +445,6 @@ const MainUserApp = ({ onNavigate }) => {
         </div>
       </div>
       
-      {/* 🔥 NEW: Tampilkan status lokasi */}
       <LocationStatus />
 
       <div style={styles.cameraSection}>
@@ -519,7 +530,7 @@ const MainUserApp = ({ onNavigate }) => {
               padding: isMobile ? '0.8rem 1.5rem' : '1rem 1.5rem',
               fontSize: isMobile ? '0.9rem' : '1rem'
             }}>
-              ⏹️ Matikan
+              ⏹️ Matikan Kamera
             </button>
           </div>
         )}
@@ -568,7 +579,7 @@ const MainUserApp = ({ onNavigate }) => {
             }}>{userProfile.name}</h3>
             <p style={styles.profileId}>🆔 {userProfile.user_id}</p>
             <p style={styles.profileConfidence}>
-              🔒 Confidence: <strong>{userProfile.confidence}</strong>
+              🔒 Tingkat Kemiripan: <strong>{(userProfile.similarity * 100).toFixed(1)}%</strong>
             </p>
             
             <div style={{
@@ -584,7 +595,7 @@ const MainUserApp = ({ onNavigate }) => {
                     new Date(record.timestamp).toDateString() === new Date().toDateString()
                   ).length}
                 </span>
-                <span style={styles.statLabel}>Absensi Hari Ini</span>
+                <span style={styles.statLabel}>Hari Ini</span>
               </div>
               <div style={styles.statItem}>
                 <span style={{
@@ -593,7 +604,7 @@ const MainUserApp = ({ onNavigate }) => {
                 }}>
                   {attendanceRecords.length}
                 </span>
-                <span style={styles.statLabel}>Total Absensi</span>
+                <span style={styles.statLabel}>Total</span>
               </div>
               <div style={styles.statItem}>
                 <span style={{
@@ -602,7 +613,7 @@ const MainUserApp = ({ onNavigate }) => {
                 }}>
                   {userProfile.similarity ? (userProfile.similarity * 100).toFixed(1) + '%' : 'N/A'}
                 </span>
-                <span style={styles.statLabel}>Tingkat Kemiripan</span>
+                <span style={styles.statLabel}>Kemiripan</span>
               </div>
             </div>
           </div>
@@ -637,9 +648,9 @@ const MainUserApp = ({ onNavigate }) => {
         <h2 style={{
           ...styles.cardTitle,
           fontSize: isMobile ? '1.3rem' : '1.5rem'
-        }}>📊 Riwayat Absensi Saya</h2>
+        }}>📊 Riwayat Absensi</h2>
         <button onClick={loadAttendanceRecords} style={{
-          ...styles.secondaryButton,
+          ...styles.refreshButton,
           padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.5rem',
           fontSize: isMobile ? '0.8rem' : '0.9rem'
         }}>
@@ -715,12 +726,12 @@ const MainUserApp = ({ onNavigate }) => {
 
   return (
     <div style={styles.app}>
-      {/* HEADER MODERN & SIMPLE */}
+      {/* HEADER MODERN */}
       <header style={styles.header}>
         <div style={styles.headerBackground}></div>
         <div style={{
           ...styles.headerContent,
-          padding: isMobile ? '1rem' : '0 1rem'
+          padding: isMobile ? '1.5rem 1rem' : '2rem 1rem'
         }}>
           <div style={styles.logoSection}>
             <div style={styles.logoContainer}>
@@ -729,46 +740,21 @@ const MainUserApp = ({ onNavigate }) => {
             </div>
             <div style={styles.textContainer}>
               <h1 style={styles.logoTitle}>Absensi Wajah</h1>
+              <p style={styles.logoSubtitle}>Sistem Absensi Modern dengan Face Recognition</p>
             </div>
           </div>
           
-          <nav style={{
-            ...styles.nav,
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: isMobile ? '0.5rem' : '0.5rem'
-          }}>
-            {[
-              { id: 'attendance', label: 'Absensi', icon: '📷' },
-              { id: 'profile', label: 'Profil', icon: '👤' },
-              { id: 'records', label: 'Riwayat', icon: '📊' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setCurrentView(tab.id)}
-                style={{
-                  ...styles.navItem,
-                  ...(currentView === tab.id && styles.navItemActive),
-                  padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
-                  fontSize: isMobile ? '0.8rem' : '14px'
-                }}
-              >
-                <span style={styles.navIcon}>{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-            <button 
-              onClick={() => onNavigate && onNavigate('registration')}
-              style={{
-                ...styles.backButton,
-                padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
-                fontSize: isMobile ? '0.8rem' : '14px'
-              }}
-            >
-              ↩️ Daftar Baru
-            </button>
-          </nav>
+          <button 
+            onClick={() => onNavigate && onNavigate('registration')}
+            style={styles.registerButton}
+          >
+            👥 Daftar User Baru
+          </button>
         </div>
       </header>
+
+      {/* NAVIGATION TABS MODERN */}
+      <NavigationTabs />
 
       <main style={{
         ...styles.main,
@@ -807,7 +793,6 @@ const styles = {
     position: 'relative',
     overflow: 'hidden',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    padding: 0
   },
   headerBackground: {
     position: 'absolute',
@@ -842,7 +827,7 @@ const styles = {
     display: 'inline-block'
   },
   logoIcon: {
-    fontSize: '2.5rem',
+    fontSize: '3rem',
     filter: 'drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3))',
     animation: 'logoFloat 3s ease-in-out infinite'
   },
@@ -851,8 +836,8 @@ const styles = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '50px',
-    height: '50px',
+    width: '60px',
+    height: '60px',
     borderRadius: '50%',
     background: 'rgba(255, 255, 255, 0.1)',
     animation: 'pulse 2s ease-out infinite'
@@ -862,52 +847,106 @@ const styles = {
   },
   logoTitle: {
     color: 'white',
-    fontSize: '1.5rem',
+    fontSize: '2rem',
     fontWeight: '800',
-    margin: 0,
+    margin: '0 0 0.25rem 0',
     textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
     background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
-  nav: {
-    display: 'flex',
-    alignItems: 'center',
-    background: 'rgba(255, 255, 255, 0.1)',
-    padding: '0.5rem',
-    borderRadius: '12px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)'
+  logoSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: '0.9rem',
+    margin: 0,
+    fontWeight: '500',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
   },
-  navItem: {
+  registerButton: {
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(255, 255, 255, 0.2)',
+    color: 'white',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(10px)',
+    fontSize: '0.9rem'
+  },
+  // NAVIGATION TABS STYLES
+  navContainer: {
+    background: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(20px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100
+  },
+  navBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(255, 255, 255, 0.8)'
+  },
+  navContent: {
+    position: 'relative',
+    maxWidth: '800px',
+    margin: '0 auto',
+    display: 'flex',
+    padding: '0.5rem',
+    gap: '0.5rem',
+    zIndex: 2
+  },
+  navTab: {
+    flex: 1,
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: '0.75rem',
+    padding: '1rem 1.5rem',
     background: 'transparent',
     border: 'none',
-    borderRadius: '8px',
-    color: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: '12px',
     cursor: 'pointer',
-    fontWeight: '500',
+    transition: 'all 0.3s ease',
+    position: 'relative',
+    textAlign: 'left'
+  },
+  navTabActive: {
+    background: 'white',
+    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.15)',
+    transform: 'translateY(-2px)'
+  },
+  navTabIcon: {
+    fontSize: '1.5rem',
     transition: 'all 0.3s ease'
   },
-  navItemActive: {
-    background: 'rgba(255, 255, 255, 0.2)',
-    color: 'white',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+  navTabText: {
+    flex: 1
   },
-  navIcon: {
-    fontSize: '1.1rem'
+  navTabLabel: {
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: '0.25rem'
   },
-  backButton: {
-    background: 'rgba(255, 255, 255, 0.2)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontWeight: '500',
-    transition: 'all 0.3s ease'
+  navTabDesc: {
+    fontSize: '0.8rem',
+    color: '#6b7280',
+    fontWeight: '500'
+  },
+  navTabActiveIndicator: {
+    position: 'absolute',
+    bottom: '-0.5rem',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '20px',
+    height: '3px',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    borderRadius: '2px'
   },
   main: {
     margin: '0 auto',
@@ -1063,6 +1102,16 @@ const styles = {
     width: '100%',
     backdropFilter: 'blur(10px)'
   },
+  refreshButton: {
+    background: 'rgba(59, 130, 246, 0.1)',
+    color: '#3b82f6',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(10px)'
+  },
   spinner: {
     width: '16px',
     height: '16px',
@@ -1136,7 +1185,9 @@ const styles = {
     flexWrap: 'wrap'
   },
   statItem: {
-    textAlign: 'center'
+    textAlign: 'center',
+    flex: 1,
+    minWidth: '80px'
   },
   statNumber: {
     display: 'block',
@@ -1164,14 +1215,16 @@ const styles = {
     background: 'rgba(249, 250, 251, 0.8)',
     fontWeight: '600',
     color: '#374151',
-    borderBottom: '1px solid rgba(229, 231, 235, 0.5)'
+    borderBottom: '1px solid rgba(229, 231, 235, 0.5)',
+    fontSize: '0.9rem'
   },
   tr: {
     borderBottom: '1px solid rgba(229, 231, 235, 0.5)'
   },
   td: {
     padding: '1rem',
-    textAlign: 'left'
+    textAlign: 'left',
+    fontSize: '0.9rem'
   },
   similarityBadge: {
     padding: '0.25rem 0.75rem',
@@ -1186,6 +1239,12 @@ const styles = {
     fontWeight: '600',
     background: '#d1fae5',
     color: '#065f46'
+  },
+  locationBadge: {
+    padding: '0.25rem 0.75rem',
+    borderRadius: '20px',
+    fontSize: '0.8rem',
+    fontWeight: '600'
   },
   emptyState: {
     textAlign: 'center',
@@ -1297,7 +1356,7 @@ const styles = {
     color: '#374151',
     fontWeight: '500'
   },
-  // NEW: Location Status Styles
+  // Location Status Styles
   locationStatus: {
     background: 'rgba(248, 250, 252, 0.8)',
     border: '1px solid rgba(226, 232, 240, 0.5)',
@@ -1368,12 +1427,6 @@ const styles = {
     borderRadius: '50%',
     animation: 'spin 1s linear infinite'
   },
-  locationBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '20px',
-    fontSize: '0.8rem',
-    fontWeight: '600'
-  },
 };
 
 // Add enhanced CSS animations
@@ -1441,12 +1494,36 @@ style.textContent = `
     input, button {
       font-size: 16px !important;
     }
+    
+    .navContent {
+      flex-direction: column;
+      padding: 0.5rem 1rem;
+    }
+    
+    .navTab {
+      padding: 0.8rem 1rem;
+    }
+    
+    .headerContent {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+    
+    .logoSection {
+      justify-content: center;
+    }
   }
   
   /* Hover effects */
   button:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  }
+  
+  .navTab:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
   }
 `;
 document.head.appendChild(style);
