@@ -12,13 +12,11 @@ const MainUserApp = ({ onNavigate }) => {
   const videoContainerRef = useRef(null);
   const streamRef = useRef(null);
 
-  // 🔥 State untuk lokasi
   const [userLocation, setUserLocation] = useState(null);
   const [locationLoading, setLocationLoading] = useState(false);
 
   const API_BASE = 'https://haritsdulloh-absensiwajah.hf.space';
 
-  // Cek device mobile
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth <= 768;
@@ -29,11 +27,10 @@ const MainUserApp = ({ onNavigate }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 🔥 Dapatkan lokasi user
   const getUserLocation = () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation tidak didukung browser ini'));
+        reject(new Error('Geolocation tidak didukung'));
         return;
       }
 
@@ -44,44 +41,33 @@ const MainUserApp = ({ onNavigate }) => {
           const location = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
           };
           setUserLocation(location);
           setLocationLoading(false);
           resolve(location);
         },
         (error) => {
-          let errorMessage = 'Gagal mendapatkan lokasi';
           setLocationLoading(false);
-          reject(new Error(errorMessage));
+          reject(new Error('Gagal mendapatkan lokasi'));
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 60000
         }
       );
     });
   };
 
-  // 🔥 Request permission lokasi
   const requestLocationPermission = async () => {
     try {
       setLocationLoading(true);
       const location = await getUserLocation();
-      showPopup('success', 'Lokasi Berhasil', 
-        `Lokasi berhasil didapatkan!\n\n📍 Latitude: ${location.latitude.toFixed(6)}\n📍 Longitude: ${location.longitude.toFixed(6)}`
-      );
       return location;
     } catch (error) {
-      showPopup('warning', 'Lokasi Gagal', 
-        `${error.message}\n\nAbsensi tetap bisa dilakukan tanpa lokasi.`
-      );
       return null;
     }
   };
 
-  // Start Camera
   const startCamera = async () => {
     try {
       setLoading(true);
@@ -99,14 +85,12 @@ const MainUserApp = ({ onNavigate }) => {
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
       streamRef.current = stream;
       setCameraActive(true);
       setLoading(false);
       
     } catch (error) {
-      console.error('Camera error:', error);
-      showPopup('error', 'Kamera Error', 'Tidak dapat mengakses kamera: ' + error.message);
+      showPopup('error', 'Kamera Error', 'Tidak dapat mengakses kamera');
       setLoading(false);
     }
   };
@@ -119,7 +103,6 @@ const MainUserApp = ({ onNavigate }) => {
     setCameraActive(false);
   };
 
-  // Capture Image
   const captureImage = () => {
     if (!videoContainerRef.current?.firstChild) {
       throw new Error('Kamera belum siap');
@@ -140,7 +123,6 @@ const MainUserApp = ({ onNavigate }) => {
     });
   };
 
-  // API Call
   const callAPI = async (endpoint, data = null, method = 'POST') => {
     try {
       setLoading(true);
@@ -157,19 +139,17 @@ const MainUserApp = ({ onNavigate }) => {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || `HTTP error! status: ${response.status}`);
+        throw new Error(result.error || 'Request gagal');
       }
 
       return result;
     } catch (error) {
-      console.error('API Error:', error);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  // Take Attendance
   const takeAttendance = async () => {
     try {
       if (!cameraActive) {
@@ -177,7 +157,6 @@ const MainUserApp = ({ onNavigate }) => {
         return;
       }
 
-      // 🔥 Dapatkan lokasi sebelum absensi
       let location = userLocation;
       if (!location) {
         location = await requestLocationPermission();
@@ -187,7 +166,6 @@ const MainUserApp = ({ onNavigate }) => {
       const formData = new FormData();
       formData.append('file', imageBlob, 'attendance.jpg');
 
-      // 🔥 Tambahkan data lokasi ke formData
       if (location) {
         formData.append('latitude', location.latitude.toString());
         formData.append('longitude', location.longitude.toString());
@@ -200,20 +178,15 @@ const MainUserApp = ({ onNavigate }) => {
           const user = result.recognized_user;
           setUserProfile(user);
           
-          let popupMessage = `Selamat ${user.name}!\n\n🆔 ${user.user_id}\n📊 Tingkat Kemiripan: ${(user.similarity * 100).toFixed(1)}%\n⏰ ${new Date().toLocaleTimeString('id-ID')}`;
+          let popupMessage = `Selamat ${user.name}!\n🆔 ${user.user_id}\n📊 Kemiripan: ${(user.similarity * 100).toFixed(1)}%`;
           
           if (result.location) {
             popupMessage += `\n📍 ${result.location.message}`;
-            if (!result.location.verified) {
-              popupMessage += '\n\n⚠️ PERINGATAN: Lokasi tidak valid!';
-            }
           }
           
           showPopup('success', 'Absensi Berhasil! 🎉', popupMessage);
         } else {
-          showPopup('warning', 'Wajah Tidak Dikenali', 
-            'Wajah tidak dikenali dalam sistem.\nPastikan Anda sudah terdaftar dan wajah terlihat jelas.'
-          );
+          showPopup('warning', 'Wajah Tidak Dikenali', 'Wajah tidak dikenali dalam sistem.');
         }
         loadAttendanceRecords();
       } else {
@@ -224,7 +197,6 @@ const MainUserApp = ({ onNavigate }) => {
     }
   };
 
-  // Load Data Functions
   const loadAttendanceRecords = async () => {
     try {
       const result = await callAPI('/attendance-records', null, 'GET');
@@ -235,7 +207,7 @@ const MainUserApp = ({ onNavigate }) => {
           );
           setAttendanceRecords(userRecords);
         } else {
-          setAttendanceRecords(result.records.slice(0, 20));
+          setAttendanceRecords(result.records.slice(0, 10));
         }
       }
     } catch (error) {
@@ -243,7 +215,6 @@ const MainUserApp = ({ onNavigate }) => {
     }
   };
 
-  // Popup Management
   const showPopup = (type, title, message) => {
     setPopup({ type, title, message });
   };
@@ -252,7 +223,6 @@ const MainUserApp = ({ onNavigate }) => {
     setPopup(null);
   };
 
-  // Effects
   useEffect(() => {
     if (cameraActive && streamRef.current && videoContainerRef.current) {
       videoContainerRef.current.innerHTML = '';
@@ -282,7 +252,6 @@ const MainUserApp = ({ onNavigate }) => {
     loadAttendanceRecords();
   }, [userProfile]);
 
-  // Popup Component
   const Popup = () => {
     if (!popup) return null;
 
@@ -315,22 +284,22 @@ const MainUserApp = ({ onNavigate }) => {
       <div style={styles.popupOverlay} onClick={closePopup}>
         <div style={{
           ...styles.popupContainer,
-          maxWidth: isMobile ? '90vw' : '450px'
+          maxWidth: isMobile ? '90vw' : '400px'
         }} onClick={(e) => e.stopPropagation()}>
           <div style={{
             ...styles.popupHeader,
             background: config.bgColor,
-            padding: isMobile ? '1rem' : '1.5rem'
+            padding: isMobile ? '1rem' : '1.25rem'
           }}>
             <div style={styles.popupIcon}>{config.icon}</div>
             <h3 style={{
               ...styles.popupTitle,
-              fontSize: isMobile ? '1.1rem' : '1.2rem'
+              fontSize: isMobile ? '1rem' : '1.1rem'
             }}>{popup.title}</h3>
           </div>
           <div style={{
             ...styles.popupContent,
-            padding: isMobile ? '1rem' : '1.5rem'
+            padding: isMobile ? '1rem' : '1.25rem'
           }}>
             {popup.message.split('\n').map((line, index) => (
               <p key={index} style={styles.popupText}>{line}</p>
@@ -338,15 +307,15 @@ const MainUserApp = ({ onNavigate }) => {
           </div>
           <div style={{
             ...styles.popupButtons,
-            padding: isMobile ? '1rem' : '0 1.5rem 1.5rem 1.5rem'
+            padding: isMobile ? '1rem' : '0 1.25rem 1.25rem 1.25rem'
           }}>
             <button 
               onClick={closePopup}
               style={{
                 ...styles.popupButton,
                 background: config.buttonColor,
-                fontSize: isMobile ? '0.9rem' : '1rem',
-                padding: isMobile ? '0.8rem' : '1rem'
+                fontSize: isMobile ? '0.85rem' : '0.9rem',
+                padding: isMobile ? '0.7rem' : '0.8rem'
               }}
             >
               Mengerti
@@ -357,7 +326,6 @@ const MainUserApp = ({ onNavigate }) => {
     );
   };
 
-  // 🔥 Location Status Component
   const LocationStatus = () => (
     <div style={styles.locationStatus}>
       <div style={styles.locationHeader}>
@@ -372,9 +340,6 @@ const MainUserApp = ({ onNavigate }) => {
       ) : userLocation ? (
         <div style={styles.locationSuccess}>
           <span style={styles.locationSuccessText}>✅ Lokasi Berhasil</span>
-          <span style={styles.locationCoords}>
-            {userLocation.latitude.toFixed(6)}, {userLocation.longitude.toFixed(6)}
-          </span>
         </div>
       ) : (
         <div style={styles.locationWarning}>
@@ -383,22 +348,20 @@ const MainUserApp = ({ onNavigate }) => {
             onClick={requestLocationPermission}
             style={styles.locationButton}
           >
-            Dapatkan Lokasi
+            Dapatkan
           </button>
         </div>
       )}
     </div>
   );
 
-  // Navigation Tabs dengan desain modern
   const NavigationTabs = () => (
     <div style={styles.navContainer}>
-      <div style={styles.navBackground}></div>
       <div style={styles.navContent}>
         {[
-          { id: 'attendance', label: 'Absensi', icon: '📷', desc: 'Ambil absensi harian' },
-          { id: 'profile', label: 'Profil', icon: '👤', desc: 'Lihat profil Anda' },
-          { id: 'records', label: 'Riwayat', icon: '📊', desc: 'Riwayat absensi' }
+          { id: 'attendance', label: 'Absensi', icon: '📷' },
+          { id: 'profile', label: 'Profil', icon: '👤' },
+          { id: 'records', label: 'Riwayat', icon: '📊' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -408,11 +371,8 @@ const MainUserApp = ({ onNavigate }) => {
               ...(currentView === tab.id && styles.navTabActive)
             }}
           >
-            <div style={styles.navTabIcon}>{tab.icon}</div>
-            <div style={styles.navTabText}>
-              <div style={styles.navTabLabel}>{tab.label}</div>
-              <div style={styles.navTabDesc}>{tab.desc}</div>
-            </div>
+            <span style={styles.navTabIcon}>{tab.icon}</span>
+            <span style={styles.navTabLabel}>{tab.label}</span>
             {currentView === tab.id && (
               <div style={styles.navTabActiveIndicator}></div>
             )}
@@ -422,26 +382,21 @@ const MainUserApp = ({ onNavigate }) => {
     </div>
   );
 
-  // Attendance View
   const AttendanceView = () => (
     <div style={{
       ...styles.card,
-      padding: isMobile ? '1.5rem 1rem' : '2rem',
-      borderRadius: isMobile ? '16px' : '20px'
+      padding: isMobile ? '1.25rem 1rem' : '1.5rem',
     }}>
       <div style={styles.cardHeader}>
-        <h2 style={{
-          ...styles.cardTitle,
-          fontSize: isMobile ? '1.3rem' : '1.5rem'
-        }}>📷 Absensi Harian</h2>
+        <h2 style={styles.cardTitle}>📷 Absensi Harian</h2>
         <div style={styles.statusIndicator}>
           <div style={{
             ...styles.statusDot,
             background: cameraActive ? '#10b981' : '#ef4444'
           }}></div>
-          <span style={{
-            fontSize: isMobile ? '0.8rem' : '14px'
-          }}>{cameraActive ? 'Kamera Aktif' : 'Kamera Nonaktif'}</span>
+          <span style={styles.statusText}>
+            {cameraActive ? 'Aktif' : 'Nonaktif'}
+          </span>
         </div>
       </div>
       
@@ -450,33 +405,19 @@ const MainUserApp = ({ onNavigate }) => {
       <div style={styles.cameraSection}>
         <div ref={videoContainerRef} style={{
           ...styles.cameraContainer,
-          height: isMobile ? '250px' : '400px'
+          height: isMobile ? '200px' : '300px'
         }}>
           {!cameraActive && (
             <div style={styles.cameraPlaceholder}>
-              <div style={{
-                ...styles.placeholderIcon,
-                fontSize: isMobile ? '2.5rem' : '4rem'
-              }}>📷</div>
-              <p style={{
-                ...styles.placeholderText,
-                fontSize: isMobile ? '1rem' : '1.2rem'
-              }}>Kamera belum diaktifkan</p>
-              <p style={{
-                ...styles.placeholderSubtext,
-                fontSize: isMobile ? '0.8rem' : '0.9rem'
-              }}>Klik tombol dibawah untuk memulai</p>
+              <div style={styles.placeholderIcon}>📷</div>
+              <p style={styles.placeholderText}>Kamera belum diaktifkan</p>
             </div>
           )}
         </div>
 
         {cameraActive && (
           <div style={styles.faceGuide}>
-            <div style={{
-              ...styles.faceBox,
-              width: isMobile ? '150px' : '250px',
-              height: isMobile ? '150px' : '250px'
-            }}></div>
+            <div style={styles.faceBox}></div>
           </div>
         )}
       </div>
@@ -486,11 +427,7 @@ const MainUserApp = ({ onNavigate }) => {
           <button 
             onClick={startCamera}
             disabled={loading}
-            style={{
-              ...styles.primaryButton,
-              padding: isMobile ? '0.8rem 1.5rem' : '1rem 2rem',
-              fontSize: isMobile ? '0.9rem' : '1rem'
-            }}
+            style={styles.primaryButton}
           >
             {loading ? (
               <>
@@ -502,19 +439,11 @@ const MainUserApp = ({ onNavigate }) => {
             )}
           </button>
         ) : (
-          <div style={{
-            ...styles.buttonGroup,
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: isMobile ? '0.8rem' : '1rem'
-          }}>
+          <div style={styles.buttonGroup}>
             <button 
               onClick={takeAttendance}
               disabled={loading || locationLoading}
-              style={{
-                ...styles.successButton,
-                padding: isMobile ? '0.8rem 1.5rem' : '1rem 2rem',
-                fontSize: isMobile ? '0.9rem' : '1rem'
-              }}
+              style={styles.successButton}
             >
               {loading ? (
                 <>
@@ -525,12 +454,8 @@ const MainUserApp = ({ onNavigate }) => {
                 '📸 Ambil Absensi'
               )}
             </button>
-            <button onClick={stopCamera} style={{
-              ...styles.secondaryButton,
-              padding: isMobile ? '0.8rem 1.5rem' : '1rem 1.5rem',
-              fontSize: isMobile ? '0.9rem' : '1rem'
-            }}>
-              ⏹️ Matikan Kamera
+            <button onClick={stopCamera} style={styles.secondaryButton}>
+              ⏹️ Matikan
             </button>
           </div>
         )}
@@ -538,59 +463,38 @@ const MainUserApp = ({ onNavigate }) => {
 
       {userProfile && (
         <div style={styles.currentUser}>
-          <h4 style={styles.currentUserTitle}>User Terdeteksi:</h4>
-          <div style={styles.currentUserInfo}>
-            <span style={styles.currentUserName}>{userProfile.name}</span>
-            <span style={styles.currentUserId}>({userProfile.user_id})</span>
-          </div>
+          <span style={styles.currentUserTitle}>User: </span>
+          <span style={styles.currentUserName}>{userProfile.name}</span>
+          <span style={styles.currentUserId}>({userProfile.user_id})</span>
         </div>
       )}
     </div>
   );
 
-  // Profile View
   const ProfileView = () => (
     <div style={{
       ...styles.card,
-      padding: isMobile ? '1.5rem 1rem' : '2rem',
-      borderRadius: isMobile ? '16px' : '20px'
+      padding: isMobile ? '1.25rem 1rem' : '1.5rem',
     }}>
       <div style={styles.cardHeader}>
-        <h2 style={{
-          ...styles.cardTitle,
-          fontSize: isMobile ? '1.3rem' : '1.5rem'
-        }}>👤 Profil Saya</h2>
+        <h2 style={styles.cardTitle}>👤 Profil Saya</h2>
       </div>
 
       {userProfile ? (
         <div style={styles.profileContent}>
-          <div style={{
-            ...styles.profileAvatar,
-            width: isMobile ? '80px' : '100px',
-            height: isMobile ? '80px' : '100px',
-            fontSize: isMobile ? '2rem' : '2.5rem'
-          }}>
+          <div style={styles.profileAvatar}>
             {userProfile.name?.charAt(0).toUpperCase()}
           </div>
           <div style={styles.profileInfo}>
-            <h3 style={{
-              ...styles.profileName,
-              fontSize: isMobile ? '1.5rem' : '1.8rem'
-            }}>{userProfile.name}</h3>
+            <h3 style={styles.profileName}>{userProfile.name}</h3>
             <p style={styles.profileId}>🆔 {userProfile.user_id}</p>
             <p style={styles.profileConfidence}>
-              🔒 Tingkat Kemiripan: <strong>{(userProfile.similarity * 100).toFixed(1)}%</strong>
+              Kemiripan: <strong>{(userProfile.similarity * 100).toFixed(1)}%</strong>
             </p>
             
-            <div style={{
-              ...styles.profileStats,
-              gap: isMobile ? '1rem' : '2rem'
-            }}>
+            <div style={styles.profileStats}>
               <div style={styles.statItem}>
-                <span style={{
-                  ...styles.statNumber,
-                  fontSize: isMobile ? '1.5rem' : '2rem'
-                }}>
+                <span style={styles.statNumber}>
                   {attendanceRecords.filter(record => 
                     new Date(record.timestamp).toDateString() === new Date().toDateString()
                   ).length}
@@ -598,63 +502,33 @@ const MainUserApp = ({ onNavigate }) => {
                 <span style={styles.statLabel}>Hari Ini</span>
               </div>
               <div style={styles.statItem}>
-                <span style={{
-                  ...styles.statNumber,
-                  fontSize: isMobile ? '1.5rem' : '2rem'
-                }}>
+                <span style={styles.statNumber}>
                   {attendanceRecords.length}
                 </span>
                 <span style={styles.statLabel}>Total</span>
-              </div>
-              <div style={styles.statItem}>
-                <span style={{
-                  ...styles.statNumber,
-                  fontSize: isMobile ? '1.5rem' : '2rem'
-                }}>
-                  {userProfile.similarity ? (userProfile.similarity * 100).toFixed(1) + '%' : 'N/A'}
-                </span>
-                <span style={styles.statLabel}>Kemiripan</span>
               </div>
             </div>
           </div>
         </div>
       ) : (
         <div style={styles.emptyState}>
-          <div style={{
-            ...styles.emptyIcon,
-            fontSize: isMobile ? '2.5rem' : '3rem'
-          }}>👤</div>
-          <p style={{
-            ...styles.emptyText,
-            fontSize: isMobile ? '1rem' : '1.1rem'
-          }}>Belum ada data profil</p>
-          <p style={{
-            ...styles.emptySubtext,
-            fontSize: isMobile ? '0.8rem' : '0.9rem'
-          }}>Lakukan absensi terlebih dahulu untuk melihat profil Anda</p>
+          <div style={styles.emptyIcon}>👤</div>
+          <p style={styles.emptyText}>Belum ada data profil</p>
+          <p style={styles.emptySubtext}>Lakukan absensi terlebih dahulu</p>
         </div>
       )}
     </div>
   );
 
-  // Records View
   const RecordsView = () => (
     <div style={{
       ...styles.card,
-      padding: isMobile ? '1.5rem 1rem' : '2rem',
-      borderRadius: isMobile ? '16px' : '20px'
+      padding: isMobile ? '1.25rem 1rem' : '1.5rem',
     }}>
       <div style={styles.cardHeader}>
-        <h2 style={{
-          ...styles.cardTitle,
-          fontSize: isMobile ? '1.3rem' : '1.5rem'
-        }}>📊 Riwayat Absensi</h2>
-        <button onClick={loadAttendanceRecords} style={{
-          ...styles.refreshButton,
-          padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.5rem',
-          fontSize: isMobile ? '0.8rem' : '0.9rem'
-        }}>
-          🔄 Refresh
+        <h2 style={styles.cardTitle}>📊 Riwayat Absensi</h2>
+        <button onClick={loadAttendanceRecords} style={styles.refreshButton}>
+          🔄
         </button>
       </div>
 
@@ -665,38 +539,26 @@ const MainUserApp = ({ onNavigate }) => {
               <th style={styles.th}>Tanggal</th>
               <th style={styles.th}>Waktu</th>
               <th style={styles.th}>Kemiripan</th>
-              <th style={styles.th}>Lokasi</th>
               <th style={styles.th}>Status</th>
             </tr>
           </thead>
           <tbody>
-            {attendanceRecords.map((record, index) => (
+            {attendanceRecords.slice(0, 8).map((record, index) => (
               <tr key={index} style={styles.tr}>
                 <td style={styles.td}>{new Date(record.timestamp).toLocaleDateString('id-ID')}</td>
                 <td style={styles.td}>{new Date(record.timestamp).toLocaleTimeString('id-ID')}</td>
                 <td style={styles.td}>
                   <span style={{
                     ...styles.similarityBadge,
-                    background: record.similarity > 0.7 ? '#d1fae5' : 
-                               record.similarity > 0.5 ? '#fef3c7' : '#fee2e2',
-                    color: record.similarity > 0.7 ? '#065f46' : 
-                          record.similarity > 0.5 ? '#92400e' : '#991b1b'
+                    background: record.similarity > 0.7 ? '#d1fae5' : '#fef3c7',
+                    color: record.similarity > 0.7 ? '#065f46' : '#92400e'
                   }}>
                     {(record.similarity * 100).toFixed(1)}%
                   </span>
                 </td>
                 <td style={styles.td}>
-                  <span style={{
-                    ...styles.locationBadge,
-                    background: record.location_verified ? '#d1fae5' : '#fee2e2',
-                    color: record.location_verified ? '#065f46' : '#991b1b'
-                  }}>
-                    {record.location_verified ? '✅ Valid' : '❌ Invalid'}
-                  </span>
-                </td>
-                <td style={styles.td}>
                   <span style={styles.statusBadge}>
-                    {record.status === 'present' ? '✅ Hadir' : '❌ Tidak Hadir'}
+                    {record.status === 'present' ? '✅' : '❌'}
                   </span>
                 </td>
               </tr>
@@ -707,18 +569,8 @@ const MainUserApp = ({ onNavigate }) => {
 
       {attendanceRecords.length === 0 && (
         <div style={styles.emptyState}>
-          <div style={{
-            ...styles.emptyIcon,
-            fontSize: isMobile ? '2.5rem' : '3rem'
-          }}>📊</div>
-          <p style={{
-            ...styles.emptyText,
-            fontSize: isMobile ? '1rem' : '1.1rem'
-          }}>Belum ada riwayat absensi</p>
-          <p style={{
-            ...styles.emptySubtext,
-            fontSize: isMobile ? '0.8rem' : '0.9rem'
-          }}>Lakukan absensi di menu Absensi</p>
+          <div style={styles.emptyIcon}>📊</div>
+          <p style={styles.emptyText}>Belum ada riwayat absensi</p>
         </div>
       )}
     </div>
@@ -726,21 +578,12 @@ const MainUserApp = ({ onNavigate }) => {
 
   return (
     <div style={styles.app}>
-      {/* HEADER MODERN */}
       <header style={styles.header}>
-        <div style={styles.headerBackground}></div>
-        <div style={{
-          ...styles.headerContent,
-          padding: isMobile ? '1.5rem 1rem' : '2rem 1rem'
-        }}>
+        <div style={styles.headerContent}>
           <div style={styles.logoSection}>
-            <div style={styles.logoContainer}>
-              <div style={styles.logoIcon}></div>
-              <div style={styles.logoGlow}></div>
-            </div>
+            <div style={styles.logoIcon}></div>
             <div style={styles.textContainer}>
               <h1 style={styles.logoTitle}>Absensi Wajah</h1>
-              <p style={styles.logoSubtitle}>Sistem Absensi Modern dengan Face Recognition</p>
             </div>
           </div>
           
@@ -748,19 +591,14 @@ const MainUserApp = ({ onNavigate }) => {
             onClick={() => onNavigate && onNavigate('registration')}
             style={styles.registerButton}
           >
-            👥 Daftar User Baru
+            👥 Daftar Baru
           </button>
         </div>
       </header>
 
-      {/* NAVIGATION TABS MODERN */}
       <NavigationTabs />
 
-      <main style={{
-        ...styles.main,
-        padding: isMobile ? '1rem 0.5rem' : '2rem 1rem',
-        maxWidth: isMobile ? '100%' : '800px'
-      }}>
+      <main style={styles.main}>
         {currentView === 'attendance' && <AttendanceView />}
         {currentView === 'profile' && <ProfileView />}
         {currentView === 'records' && <RecordsView />}
@@ -770,10 +608,7 @@ const MainUserApp = ({ onNavigate }) => {
 
       {loading && (
         <div style={styles.loadingOverlay}>
-          <div style={{
-            ...styles.loadingContent,
-            padding: isMobile ? '1.5rem' : '2rem'
-          }}>
+          <div style={styles.loadingContent}>
             <div style={styles.loadingSpinner}></div>
             <p style={styles.loadingText}>Memproses...</p>
           </div>
@@ -787,227 +622,206 @@ const styles = {
   app: {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
+    fontFamily: "'Inter', -apple-system, sans-serif"
   },
   header: {
-    position: 'relative',
-    overflow: 'hidden',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  },
-  headerBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: `
-      radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%)
-    `,
-    animation: 'gradientShift 8s ease-in-out infinite'
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+    padding: '1rem 0'
   },
   headerContent: {
-    position: 'relative',
-    maxWidth: '1200px',
+    maxWidth: '800px',
     margin: '0 auto',
-    zIndex: 2,
+    padding: '0 1rem',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem'
+    alignItems: 'center'
   },
   logoSection: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem'
-  },
-  logoContainer: {
-    position: 'relative',
-    display: 'inline-block'
+    gap: '0.75rem'
   },
   logoIcon: {
-    fontSize: '3rem',
-    filter: 'drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3))',
-    animation: 'logoFloat 3s ease-in-out infinite'
-  },
-  logoGlow: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '60px',
-    height: '60px',
-    borderRadius: '50%',
-    background: 'rgba(255, 255, 255, 0.1)',
-    animation: 'pulse 2s ease-out infinite'
+    fontSize: '2rem'
   },
   textContainer: {
     textAlign: 'left'
   },
   logoTitle: {
     color: 'white',
-    fontSize: '2rem',
-    fontWeight: '800',
-    margin: '0 0 0.25rem 0',
-    textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+    fontSize: '1.5rem',
+    fontWeight: '700',
+    margin: 0,
     background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
-  logoSubtitle: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: '0.9rem',
-    margin: 0,
-    fontWeight: '500',
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
-  },
   registerButton: {
-    padding: '0.75rem 1.5rem',
+    padding: '0.5rem 1rem',
     background: 'rgba(255, 255, 255, 0.2)',
     color: 'white',
     border: '1px solid rgba(255, 255, 255, 0.3)',
-    borderRadius: '12px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600',
-    transition: 'all 0.3s ease',
-    backdropFilter: 'blur(10px)',
-    fontSize: '0.9rem'
+    fontSize: '0.85rem',
+    backdropFilter: 'blur(10px)'
   },
-  // NAVIGATION TABS STYLES
   navContainer: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(20px)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-    position: 'sticky',
-    top: 0,
-    zIndex: 100
-  },
-  navBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(255, 255, 255, 0.8)'
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(10px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
   },
   navContent: {
-    position: 'relative',
     maxWidth: '800px',
     margin: '0 auto',
     display: 'flex',
-    padding: '0.5rem',
-    gap: '0.5rem',
-    zIndex: 2
+    padding: '0.5rem 1rem',
+    gap: '0.5rem'
   },
   navTab: {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
-    padding: '1rem 1.5rem',
+    gap: '0.5rem',
+    padding: '0.75rem 1rem',
     background: 'transparent',
     border: 'none',
-    borderRadius: '12px',
+    borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     position: 'relative',
-    textAlign: 'left'
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '0.9rem',
+    fontWeight: '500'
   },
   navTabActive: {
-    background: 'white',
-    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.15)',
-    transform: 'translateY(-2px)'
+    background: 'rgba(255, 255, 255, 0.15)',
+    color: 'white'
   },
   navTabIcon: {
-    fontSize: '1.5rem',
-    transition: 'all 0.3s ease'
-  },
-  navTabText: {
-    flex: 1
+    fontSize: '1.1rem'
   },
   navTabLabel: {
-    fontSize: '1rem',
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: '0.25rem'
-  },
-  navTabDesc: {
-    fontSize: '0.8rem',
-    color: '#6b7280',
-    fontWeight: '500'
+    fontSize: '0.85rem'
   },
   navTabActiveIndicator: {
     position: 'absolute',
     bottom: '-0.5rem',
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '20px',
-    height: '3px',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-    borderRadius: '2px'
+    width: '16px',
+    height: '2px',
+    background: 'white',
+    borderRadius: '1px'
   },
   main: {
+    maxWidth: '800px',
     margin: '0 auto',
+    padding: '1.5rem 1rem'
   },
   card: {
     background: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(20px)',
-    boxShadow: `
-      0 25px 50px -12px rgba(0, 0, 0, 0.1),
-      0 0 0 1px rgba(255, 255, 255, 0.1)
-    `,
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    animation: 'cardEntrance 0.8s ease-out'
+    backdropFilter: 'blur(10px)',
+    borderRadius: '12px',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   cardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '2rem',
-    flexWrap: 'wrap',
-    gap: '1rem'
+    marginBottom: '1.5rem'
   },
   cardTitle: {
     color: '#1f2937',
     margin: 0,
-    fontWeight: '700',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent'
+    fontSize: '1.25rem',
+    fontWeight: '600'
   },
   statusIndicator: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: '0.5rem'
+  },
+  statusDot: {
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%'
+  },
+  statusText: {
+    fontSize: '0.8rem',
     color: '#6b7280',
     fontWeight: '500'
   },
-  statusDot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    animation: 'pulse 2s infinite'
+  locationStatus: {
+    background: 'rgba(248, 250, 252, 0.8)',
+    border: '1px solid rgba(226, 232, 240, 0.5)',
+    borderRadius: '8px',
+    padding: '0.75rem',
+    marginBottom: '1.5rem'
+  },
+  locationHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginBottom: '0.5rem'
+  },
+  locationIcon: {
+    fontSize: '1rem'
+  },
+  locationTitle: {
+    fontWeight: '600',
+    color: '#374151',
+    fontSize: '0.9rem'
+  },
+  locationLoading: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    color: '#6b7280',
+    fontSize: '0.8rem'
+  },
+  locationSuccess: {
+    color: '#065f46',
+    fontWeight: '600',
+    fontSize: '0.8rem'
+  },
+  locationWarning: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  locationWarningText: {
+    color: '#92400e',
+    fontWeight: '600',
+    fontSize: '0.8rem'
+  },
+  locationButton: {
+    padding: '0.3rem 0.7rem',
+    background: '#f59e0b',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.75rem',
+    fontWeight: '500'
   },
   cameraSection: {
     position: 'relative',
-    marginBottom: '2rem'
+    marginBottom: '1.5rem'
   },
   cameraContainer: {
     width: '100%',
     background: '#000',
-    borderRadius: '16px',
+    borderRadius: '8px',
     overflow: 'hidden',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    position: 'relative',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+    border: '1px solid #e5e7eb'
   },
   cameraPlaceholder: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
     width: '100%',
     height: '100%',
     display: 'flex',
@@ -1018,19 +832,14 @@ const styles = {
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   },
   placeholderIcon: {
-    marginBottom: '1rem',
-    opacity: 0.8,
-    animation: 'bounce 2s infinite'
+    fontSize: '2rem',
+    marginBottom: '0.5rem',
+    opacity: 0.8
   },
   placeholderText: {
-    fontWeight: '600',
-    margin: '0 0 0.5rem 0',
-    textAlign: 'center'
-  },
-  placeholderSubtext: {
-    opacity: 0.8,
-    margin: 0,
-    textAlign: 'center'
+    fontSize: '0.9rem',
+    fontWeight: '500',
+    margin: 0
   },
   faceGuide: {
     position: 'absolute',
@@ -1044,222 +853,211 @@ const styles = {
     justifyContent: 'center'
   },
   faceBox: {
-    border: '3px solid rgba(255, 255, 255, 0.8)',
-    borderRadius: '16px',
-    boxShadow: '0 0 0 100vmax rgba(0, 0, 0, 0.4)',
-    animation: 'pulse 2s infinite'
+    width: '150px',
+    height: '150px',
+    border: '2px solid rgba(255, 255, 255, 0.8)',
+    borderRadius: '12px',
+    boxShadow: '0 0 0 100vmax rgba(0, 0, 0, 0.4)'
   },
   controls: {
     textAlign: 'center'
   },
   buttonGroup: {
     display: 'flex',
-    justifyContent: 'center',
-    flexWrap: 'wrap'
+    gap: '0.75rem',
+    justifyContent: 'center'
   },
   primaryButton: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
+    padding: '0.75rem 1.5rem',
     background: 'linear-gradient(135deg, #667eea, #764ba2)',
     color: 'white',
     border: 'none',
-    borderRadius: '12px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
+    fontSize: '0.9rem',
     width: '100%',
-    justifyContent: 'center',
-    position: 'relative',
-    overflow: 'hidden'
+    justifyContent: 'center'
   },
   successButton: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
+    padding: '0.75rem 1.5rem',
     background: 'linear-gradient(135deg, #10b981, #059669)',
     color: 'white',
     border: 'none',
-    borderRadius: '12px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)',
+    fontSize: '0.9rem',
     width: '100%',
-    justifyContent: 'center',
-    position: 'relative',
-    overflow: 'hidden'
+    justifyContent: 'center'
   },
   secondaryButton: {
-    background: 'rgba(243, 244, 246, 0.8)',
+    padding: '0.75rem 1.5rem',
+    background: '#f3f4f6',
     color: '#374151',
     border: 'none',
-    borderRadius: '12px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '500',
-    transition: 'all 0.3s ease',
-    width: '100%',
-    backdropFilter: 'blur(10px)'
+    fontSize: '0.9rem',
+    width: '100%'
   },
   refreshButton: {
+    padding: '0.5rem',
     background: 'rgba(59, 130, 246, 0.1)',
     color: '#3b82f6',
     border: '1px solid rgba(59, 130, 246, 0.2)',
-    borderRadius: '10px',
+    borderRadius: '6px',
     cursor: 'pointer',
-    fontWeight: '500',
-    transition: 'all 0.3s ease',
-    backdropFilter: 'blur(10px)'
+    fontSize: '0.9rem'
   },
   spinner: {
-    width: '16px',
-    height: '16px',
+    width: '14px',
+    height: '14px',
     border: '2px solid transparent',
     borderTop: '2px solid currentColor',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite'
   },
+  smallSpinner: {
+    width: '12px',
+    height: '12px',
+    border: '2px solid #f3f4f6',
+    borderTop: '2px solid #3b82f6',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
+  },
   currentUser: {
     marginTop: '1rem',
-    padding: '1rem',
+    padding: '0.75rem',
     background: '#f0f9ff',
-    borderRadius: '10px',
-    border: '1px solid #e0f2fe'
+    borderRadius: '6px',
+    border: '1px solid #e0f2fe',
+    fontSize: '0.85rem',
+    color: '#0369a1'
   },
   currentUserTitle: {
-    margin: '0 0 0.5rem 0',
-    color: '#0369a1',
-    fontSize: '0.9rem',
     fontWeight: '600'
-  },
-  currentUserInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem'
   },
   currentUserName: {
-    color: '#1f2937',
-    fontWeight: '600'
+    fontWeight: '600',
+    color: '#1f2937'
   },
   currentUserId: {
-    color: '#6b7280',
-    fontSize: '0.9rem'
+    color: '#6b7280'
   },
   profileContent: {
     display: 'flex',
     alignItems: 'center',
-    gap: '2rem',
-    flexWrap: 'wrap'
+    gap: '1.5rem'
   },
   profileAvatar: {
+    width: '60px',
+    height: '60px',
     borderRadius: '50%',
     background: 'linear-gradient(135deg, #667eea, #764ba2)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
-    fontWeight: 'bold',
-    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)'
+    fontSize: '1.5rem',
+    fontWeight: 'bold'
   },
   profileInfo: {
     flex: 1
   },
   profileName: {
-    margin: '0 0 0.5rem 0',
+    margin: '0 0 0.25rem 0',
     color: '#1f2937',
-    fontWeight: '700'
+    fontSize: '1.5rem',
+    fontWeight: '600'
   },
   profileId: {
     margin: '0 0 0.5rem 0',
     color: '#6b7280',
-    fontSize: '1.1rem'
+    fontSize: '1rem'
   },
   profileConfidence: {
-    margin: '0 0 1.5rem 0',
+    margin: '0 0 1rem 0',
     color: '#6b7280',
-    fontSize: '1rem'
+    fontSize: '0.9rem'
   },
   profileStats: {
     display: 'flex',
-    flexWrap: 'wrap'
+    gap: '2rem'
   },
   statItem: {
-    textAlign: 'center',
-    flex: 1,
-    minWidth: '80px'
+    textAlign: 'center'
   },
   statNumber: {
     display: 'block',
-    fontWeight: '800',
+    fontSize: '1.5rem',
+    fontWeight: '700',
     color: '#667eea',
     marginBottom: '0.25rem'
   },
   statLabel: {
-    fontSize: '0.9rem',
+    fontSize: '0.8rem',
     color: '#6b7280',
     fontWeight: '500'
   },
   tableContainer: {
     overflowX: 'auto',
-    borderRadius: '12px',
-    border: '1px solid rgba(229, 231, 235, 0.5)'
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb'
   },
   table: {
     width: '100%',
-    borderCollapse: 'collapse'
+    borderCollapse: 'collapse',
+    fontSize: '0.8rem'
   },
   th: {
-    padding: '1rem',
+    padding: '0.75rem',
     textAlign: 'left',
-    background: 'rgba(249, 250, 251, 0.8)',
+    background: '#f9fafb',
     fontWeight: '600',
     color: '#374151',
-    borderBottom: '1px solid rgba(229, 231, 235, 0.5)',
-    fontSize: '0.9rem'
+    borderBottom: '1px solid #e5e7eb'
   },
   tr: {
-    borderBottom: '1px solid rgba(229, 231, 235, 0.5)'
+    borderBottom: '1px solid #e5e7eb'
   },
   td: {
-    padding: '1rem',
-    textAlign: 'left',
-    fontSize: '0.9rem'
+    padding: '0.75rem',
+    textAlign: 'left'
   },
   similarityBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '20px',
-    fontSize: '0.8rem',
+    padding: '0.2rem 0.6rem',
+    borderRadius: '12px',
+    fontSize: '0.75rem',
     fontWeight: '600'
   },
   statusBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '20px',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    background: '#d1fae5',
-    color: '#065f46'
-  },
-  locationBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '20px',
-    fontSize: '0.8rem',
-    fontWeight: '600'
+    fontSize: '0.9rem'
   },
   emptyState: {
     textAlign: 'center',
-    padding: '3rem',
+    padding: '2rem',
     color: '#6b7280'
   },
   emptyIcon: {
-    marginBottom: '1rem',
+    fontSize: '2rem',
+    marginBottom: '0.5rem',
     opacity: 0.5
   },
   emptyText: {
-    margin: '0 0 0.5rem 0'
+    margin: '0 0 0.25rem 0',
+    fontSize: '0.9rem'
   },
   emptySubtext: {
     margin: 0,
+    fontSize: '0.8rem',
     opacity: 0.7
   },
   popupOverlay: {
@@ -1273,28 +1071,23 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
-    padding: '1rem',
-    backdropFilter: 'blur(5px)'
+    padding: '1rem'
   },
   popupContainer: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '20px',
+    background: 'white',
+    borderRadius: '12px',
     width: '100%',
     overflow: 'hidden',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    animation: 'popupEntrance 0.5s ease-out'
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
   },
   popupHeader: {
     color: 'white',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem'
+    gap: '0.5rem'
   },
   popupIcon: {
-    fontSize: '1.5rem',
-    animation: 'bounce 1s infinite'
+    fontSize: '1.25rem'
   },
   popupTitle: {
     margin: 0,
@@ -1305,8 +1098,9 @@ const styles = {
   },
   popupText: {
     margin: '0.5rem 0',
-    lineHeight: '1.6',
-    color: '#374151'
+    lineHeight: '1.5',
+    color: '#374151',
+    fontSize: '0.9rem'
   },
   popupButtons: {
     
@@ -1317,9 +1111,7 @@ const styles = {
     border: 'none',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    borderRadius: '12px',
-    backdropFilter: 'blur(10px)'
+    borderRadius: '6px'
   },
   loadingOverlay: {
     position: 'fixed',
@@ -1331,21 +1123,19 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9999,
-    backdropFilter: 'blur(10px)'
+    zIndex: 9999
   },
   loadingContent: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '20px',
+    background: 'white',
+    padding: '1.5rem',
+    borderRadius: '12px',
     textAlign: 'center',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)'
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
   },
   loadingSpinner: {
-    width: '50px',
-    height: '50px',
-    border: '4px solid rgba(243, 244, 246, 0.8)',
+    width: '40px',
+    height: '40px',
+    border: '4px solid #f3f4f6',
     borderTop: '4px solid #667eea',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
@@ -1354,176 +1144,16 @@ const styles = {
   loadingText: {
     margin: 0,
     color: '#374151',
-    fontWeight: '500'
-  },
-  // Location Status Styles
-  locationStatus: {
-    background: 'rgba(248, 250, 252, 0.8)',
-    border: '1px solid rgba(226, 232, 240, 0.5)',
-    borderRadius: '12px',
-    padding: '1rem',
-    marginBottom: '1.5rem',
-    backdropFilter: 'blur(10px)'
-  },
-  locationHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    marginBottom: '0.75rem'
-  },
-  locationIcon: {
-    fontSize: '1.2rem'
-  },
-  locationTitle: {
-    fontWeight: '600',
-    color: '#374151'
-  },
-  locationLoading: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    color: '#6b7280'
-  },
-  locationSuccess: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.25rem'
-  },
-  locationSuccessText: {
-    color: '#065f46',
-    fontWeight: '600'
-  },
-  locationCoords: {
-    fontSize: '0.8rem',
-    color: '#6b7280',
-    fontFamily: 'monospace'
-  },
-  locationWarning: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: '0.5rem'
-  },
-  locationWarningText: {
-    color: '#92400e',
-    fontWeight: '600'
-  },
-  locationButton: {
-    padding: '0.5rem 1rem',
-    background: '#f59e0b',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    fontWeight: '500'
-  },
-  smallSpinner: {
-    width: '16px',
-    height: '16px',
-    border: '2px solid rgba(243, 244, 246, 0.8)',
-    borderTop: '2px solid #3b82f6',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite'
-  },
+    fontWeight: '500',
+    fontSize: '0.9rem'
+  }
 };
 
-// Add enhanced CSS animations
 const style = document.createElement('style');
 style.textContent = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-  }
-  
-  @keyframes logoFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.05); }
-  }
-  
-  @keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  
-  @keyframes cardEntrance {
-    0% { 
-      opacity: 0;
-      transform: translateY(30px) scale(0.95);
-    }
-    100% { 
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-  
-  @keyframes popupEntrance {
-    0% { 
-      opacity: 0;
-      transform: scale(0.8) translateY(20px);
-    }
-    100% { 
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-  
-  @keyframes bounce {
-    0%, 20%, 53%, 80%, 100% {
-      transform: translateY(0);
-    }
-    40%, 43% {
-      transform: translateY(-8px);
-    }
-    70% {
-      transform: translateY(-4px);
-    }
-    90% {
-      transform: translateY(-2px);
-    }
-  }
-  
-  /* Enhanced mobile optimizations */
-  @media (max-width: 768px) {
-    input, button {
-      font-size: 16px !important;
-    }
-    
-    .navContent {
-      flex-direction: column;
-      padding: 0.5rem 1rem;
-    }
-    
-    .navTab {
-      padding: 0.8rem 1rem;
-    }
-    
-    .headerContent {
-      flex-direction: column;
-      text-align: center;
-      gap: 1rem;
-    }
-    
-    .logoSection {
-      justify-content: center;
-    }
-  }
-  
-  /* Hover effects */
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-  }
-  
-  .navTab:hover {
-    background: rgba(255, 255, 255, 0.5);
-    transform: translateY(-1px);
   }
 `;
 document.head.appendChild(style);
