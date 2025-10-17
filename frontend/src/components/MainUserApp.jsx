@@ -284,17 +284,22 @@ const MainUserApp = ({ onNavigate }) => {
       <div style={styles.popupOverlay} onClick={closePopup}>
         <div style={{
           ...styles.popupContainer,
-          maxWidth: isMobile ? '90vw' : '400px'
+          maxWidth: isMobile ? '90vw' : '400px',
+          animation: 'popupSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
         }} onClick={(e) => e.stopPropagation()}>
           <div style={{
             ...styles.popupHeader,
             background: config.bgColor,
             padding: isMobile ? '1rem' : '1.25rem'
           }}>
-            <div style={styles.popupIcon}>{config.icon}</div>
+            <div style={{
+              ...styles.popupIcon,
+              animation: 'bounceIn 0.6s ease-out'
+            }}>{config.icon}</div>
             <h3 style={{
               ...styles.popupTitle,
-              fontSize: isMobile ? '1rem' : '1.1rem'
+              fontSize: isMobile ? '1rem' : '1.1rem',
+              animation: 'slideInDown 0.5s ease-out'
             }}>{popup.title}</h3>
           </div>
           <div style={{
@@ -302,7 +307,10 @@ const MainUserApp = ({ onNavigate }) => {
             padding: isMobile ? '1rem' : '1.25rem'
           }}>
             {popup.message.split('\n').map((line, index) => (
-              <p key={index} style={styles.popupText}>{line}</p>
+              <p key={index} style={{
+                ...styles.popupText,
+                animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
+              }}>{line}</p>
             ))}
           </div>
           <div style={{
@@ -315,7 +323,8 @@ const MainUserApp = ({ onNavigate }) => {
                 ...styles.popupButton,
                 background: config.buttonColor,
                 fontSize: isMobile ? '0.85rem' : '0.9rem',
-                padding: isMobile ? '0.7rem' : '0.8rem'
+                padding: isMobile ? '0.7rem' : '0.8rem',
+                animation: 'fadeInUp 0.6s ease-out 0.3s both'
               }}
             >
               Mengerti
@@ -327,9 +336,15 @@ const MainUserApp = ({ onNavigate }) => {
   };
 
   const LocationStatus = () => (
-    <div style={styles.locationStatus}>
+    <div style={{
+      ...styles.locationStatus,
+      animation: 'slideInLeft 0.5s ease-out'
+    }}>
       <div style={styles.locationHeader}>
-        <span style={styles.locationIcon}>📍</span>
+        <span style={{
+          ...styles.locationIcon,
+          animation: 'pulse 2s infinite'
+        }}>📍</span>
         <span style={styles.locationTitle}>Status Lokasi</span>
       </div>
       {locationLoading ? (
@@ -362,16 +377,20 @@ const MainUserApp = ({ onNavigate }) => {
           { id: 'attendance', label: 'Absensi', icon: '📷' },
           { id: 'profile', label: 'Profil', icon: '👤' },
           { id: 'records', label: 'Riwayat', icon: '📊' }
-        ].map(tab => (
+        ].map((tab, index) => (
           <button
             key={tab.id}
             onClick={() => setCurrentView(tab.id)}
             style={{
               ...styles.navTab,
-              ...(currentView === tab.id && styles.navTabActive)
+              ...(currentView === tab.id && styles.navTabActive),
+              animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
             }}
           >
-            <span style={styles.navTabIcon}>{tab.icon}</span>
+            <span style={{
+              ...styles.navTabIcon,
+              animation: currentView === tab.id ? 'bounce 0.5s ease-out' : 'none'
+            }}>{tab.icon}</span>
             <span style={styles.navTabLabel}>{tab.label}</span>
             {currentView === tab.id && (
               <div style={styles.navTabActiveIndicator}></div>
@@ -386,13 +405,18 @@ const MainUserApp = ({ onNavigate }) => {
     <div style={{
       ...styles.card,
       padding: isMobile ? '1.25rem 1rem' : '1.5rem',
+      animation: 'cardSlideIn 0.6s ease-out'
     }}>
       <div style={styles.cardHeader}>
-        <h2 style={styles.cardTitle}>📷 Absensi Harian</h2>
+        <h2 style={{
+          ...styles.cardTitle,
+          animation: 'slideInDown 0.5s ease-out'
+        }}>📷 Absensi Harian</h2>
         <div style={styles.statusIndicator}>
           <div style={{
             ...styles.statusDot,
-            background: cameraActive ? '#10b981' : '#ef4444'
+            background: cameraActive ? '#10b981' : '#ef4444',
+            animation: cameraActive ? 'pulse 2s infinite' : 'none'
           }}></div>
           <span style={styles.statusText}>
             {cameraActive ? 'Aktif' : 'Nonaktif'}
@@ -405,11 +429,15 @@ const MainUserApp = ({ onNavigate }) => {
       <div style={styles.cameraSection}>
         <div ref={videoContainerRef} style={{
           ...styles.cameraContainer,
-          height: isMobile ? '200px' : '300px'
+          height: isMobile ? '200px' : '300px',
+          animation: cameraActive ? 'zoomIn 0.5s ease-out' : 'fadeIn 0.5s ease-out'
         }}>
           {!cameraActive && (
             <div style={styles.cameraPlaceholder}>
-              <div style={styles.placeholderIcon}>📷</div>
+              <div style={{
+                ...styles.placeholderIcon,
+                animation: 'bounce 2s infinite'
+              }}>📷</div>
               <p style={styles.placeholderText}>Kamera belum diaktifkan</p>
             </div>
           )}
@@ -417,7 +445,10 @@ const MainUserApp = ({ onNavigate }) => {
 
         {cameraActive && (
           <div style={styles.faceGuide}>
-            <div style={styles.faceBox}></div>
+            <div style={{
+              ...styles.faceBox,
+              animation: 'pulse 2s infinite'
+            }}></div>
           </div>
         )}
       </div>
@@ -427,7 +458,10 @@ const MainUserApp = ({ onNavigate }) => {
           <button 
             onClick={startCamera}
             disabled={loading}
-            style={styles.primaryButton}
+            style={{
+              ...styles.primaryButton,
+              animation: 'fadeInUp 0.6s ease-out'
+            }}
           >
             {loading ? (
               <>
@@ -439,11 +473,18 @@ const MainUserApp = ({ onNavigate }) => {
             )}
           </button>
         ) : (
-          <div style={styles.buttonGroup}>
+          <div style={{
+            ...styles.buttonGroup,
+            animation: 'fadeInUp 0.6s ease-out'
+          }}>
             <button 
               onClick={takeAttendance}
               disabled={loading || locationLoading}
-              style={styles.successButton}
+              style={{
+                ...styles.successButton,
+                transform: loading ? 'scale(0.98)' : 'scale(1)',
+                transition: 'all 0.3s ease'
+              }}
             >
               {loading ? (
                 <>
@@ -462,7 +503,10 @@ const MainUserApp = ({ onNavigate }) => {
       </div>
 
       {userProfile && (
-        <div style={styles.currentUser}>
+        <div style={{
+          ...styles.currentUser,
+          animation: 'slideInUp 0.5s ease-out'
+        }}>
           <span style={styles.currentUserTitle}>User: </span>
           <span style={styles.currentUserName}>{userProfile.name}</span>
           <span style={styles.currentUserId}>({userProfile.user_id})</span>
@@ -475,24 +519,43 @@ const MainUserApp = ({ onNavigate }) => {
     <div style={{
       ...styles.card,
       padding: isMobile ? '1.25rem 1rem' : '1.5rem',
+      animation: 'cardSlideIn 0.6s ease-out'
     }}>
       <div style={styles.cardHeader}>
-        <h2 style={styles.cardTitle}>👤 Profil Saya</h2>
+        <h2 style={{
+          ...styles.cardTitle,
+          animation: 'slideInDown 0.5s ease-out'
+        }}>👤 Profil Saya</h2>
       </div>
 
       {userProfile ? (
         <div style={styles.profileContent}>
-          <div style={styles.profileAvatar}>
+          <div style={{
+            ...styles.profileAvatar,
+            animation: 'zoomIn 0.6s ease-out'
+          }}>
             {userProfile.name?.charAt(0).toUpperCase()}
           </div>
           <div style={styles.profileInfo}>
-            <h3 style={styles.profileName}>{userProfile.name}</h3>
-            <p style={styles.profileId}>🆔 {userProfile.user_id}</p>
-            <p style={styles.profileConfidence}>
+            <h3 style={{
+              ...styles.profileName,
+              animation: 'slideInRight 0.5s ease-out 0.2s both'
+            }}>{userProfile.name}</h3>
+            <p style={{
+              ...styles.profileId,
+              animation: 'slideInRight 0.5s ease-out 0.3s both'
+            }}>🆔 {userProfile.user_id}</p>
+            <p style={{
+              ...styles.profileConfidence,
+              animation: 'slideInRight 0.5s ease-out 0.4s both'
+            }}>
               Kemiripan: <strong>{(userProfile.similarity * 100).toFixed(1)}%</strong>
             </p>
             
-            <div style={styles.profileStats}>
+            <div style={{
+              ...styles.profileStats,
+              animation: 'fadeInUp 0.6s ease-out 0.5s both'
+            }}>
               <div style={styles.statItem}>
                 <span style={styles.statNumber}>
                   {attendanceRecords.filter(record => 
@@ -511,8 +574,14 @@ const MainUserApp = ({ onNavigate }) => {
           </div>
         </div>
       ) : (
-        <div style={styles.emptyState}>
-          <div style={styles.emptyIcon}>👤</div>
+        <div style={{
+          ...styles.emptyState,
+          animation: 'fadeIn 0.6s ease-out'
+        }}>
+          <div style={{
+            ...styles.emptyIcon,
+            animation: 'bounce 2s infinite'
+          }}>👤</div>
           <p style={styles.emptyText}>Belum ada data profil</p>
           <p style={styles.emptySubtext}>Lakukan absensi terlebih dahulu</p>
         </div>
@@ -524,10 +593,17 @@ const MainUserApp = ({ onNavigate }) => {
     <div style={{
       ...styles.card,
       padding: isMobile ? '1.25rem 1rem' : '1.5rem',
+      animation: 'cardSlideIn 0.6s ease-out'
     }}>
       <div style={styles.cardHeader}>
-        <h2 style={styles.cardTitle}>📊 Riwayat Absensi</h2>
-        <button onClick={loadAttendanceRecords} style={styles.refreshButton}>
+        <h2 style={{
+          ...styles.cardTitle,
+          animation: 'slideInDown 0.5s ease-out'
+        }}>📊 Riwayat Absensi</h2>
+        <button onClick={loadAttendanceRecords} style={{
+          ...styles.refreshButton,
+          animation: 'rotate 0.3s ease-out'
+        }}>
           🔄
         </button>
       </div>
@@ -544,20 +620,27 @@ const MainUserApp = ({ onNavigate }) => {
           </thead>
           <tbody>
             {attendanceRecords.slice(0, 8).map((record, index) => (
-              <tr key={index} style={styles.tr}>
+              <tr key={index} style={{
+                ...styles.tr,
+                animation: `slideInRight 0.5s ease-out ${index * 0.1}s both`
+              }}>
                 <td style={styles.td}>{new Date(record.timestamp).toLocaleDateString('id-ID')}</td>
                 <td style={styles.td}>{new Date(record.timestamp).toLocaleTimeString('id-ID')}</td>
                 <td style={styles.td}>
                   <span style={{
                     ...styles.similarityBadge,
                     background: record.similarity > 0.7 ? '#d1fae5' : '#fef3c7',
-                    color: record.similarity > 0.7 ? '#065f46' : '#92400e'
+                    color: record.similarity > 0.7 ? '#065f46' : '#92400e',
+                    animation: `scaleIn 0.4s ease-out ${index * 0.1 + 0.3}s both`
                   }}>
                     {(record.similarity * 100).toFixed(1)}%
                   </span>
                 </td>
                 <td style={styles.td}>
-                  <span style={styles.statusBadge}>
+                  <span style={{
+                    ...styles.statusBadge,
+                    animation: `scaleIn 0.4s ease-out ${index * 0.1 + 0.4}s both`
+                  }}>
                     {record.status === 'present' ? '✅' : '❌'}
                   </span>
                 </td>
@@ -568,8 +651,14 @@ const MainUserApp = ({ onNavigate }) => {
       </div>
 
       {attendanceRecords.length === 0 && (
-        <div style={styles.emptyState}>
-          <div style={styles.emptyIcon}>📊</div>
+        <div style={{
+          ...styles.emptyState,
+          animation: 'fadeIn 0.6s ease-out'
+        }}>
+          <div style={{
+            ...styles.emptyIcon,
+            animation: 'bounce 2s infinite'
+          }}>📊</div>
           <p style={styles.emptyText}>Belum ada riwayat absensi</p>
         </div>
       )}
@@ -578,18 +667,30 @@ const MainUserApp = ({ onNavigate }) => {
 
   return (
     <div style={styles.app}>
-      <header style={styles.header}>
+      <header style={{
+        ...styles.header,
+        animation: 'slideInDown 0.6s ease-out'
+      }}>
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
-            <div style={styles.logoIcon}></div>
+            <div style={{
+              ...styles.logoIcon,
+              animation: 'logoFloat 3s ease-in-out infinite'
+            }}>🤖</div>
             <div style={styles.textContainer}>
-              <h1 style={styles.logoTitle}>Absensi Wajah</h1>
+              <h1 style={{
+                ...styles.logoTitle,
+                animation: 'textGlow 2s ease-in-out infinite'
+              }}>Absensi Wajah</h1>
             </div>
           </div>
           
           <button 
             onClick={() => onNavigate && onNavigate('registration')}
-            style={styles.registerButton}
+            style={{
+              ...styles.registerButton,
+              animation: 'pulse 2s infinite'
+            }}
           >
             👥 Daftar Baru
           </button>
@@ -622,7 +723,8 @@ const styles = {
   app: {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    fontFamily: "'Inter', -apple-system, sans-serif"
+    fontFamily: "'Inter', -apple-system, sans-serif",
+    animation: 'gradientShift 8s ease infinite'
   },
   header: {
     background: 'rgba(255, 255, 255, 0.1)',
@@ -644,7 +746,8 @@ const styles = {
     gap: '0.75rem'
   },
   logoIcon: {
-    fontSize: '2rem'
+    fontSize: '2rem',
+    filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))'
   },
   textContainer: {
     textAlign: 'left'
@@ -657,7 +760,8 @@ const styles = {
     background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent'
+    WebkitTextFillColor: 'transparent',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
   },
   registerButton: {
     padding: '0.5rem 1rem',
@@ -668,7 +772,8 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600',
     fontSize: '0.85rem',
-    backdropFilter: 'blur(10px)'
+    backdropFilter: 'blur(10px)',
+    transform: 'scale(1)'
   },
   navContainer: {
     background: 'rgba(255, 255, 255, 0.05)',
@@ -696,11 +801,13 @@ const styles = {
     position: 'relative',
     color: 'rgba(255, 255, 255, 0.8)',
     fontSize: '0.9rem',
-    fontWeight: '500'
+    fontWeight: '500',
+    transform: 'translateY(0)'
   },
   navTabActive: {
     background: 'rgba(255, 255, 255, 0.15)',
-    color: 'white'
+    color: 'white',
+    transform: 'translateY(-2px)'
   },
   navTabIcon: {
     fontSize: '1.1rem'
@@ -716,7 +823,8 @@ const styles = {
     width: '16px',
     height: '2px',
     background: 'white',
-    borderRadius: '1px'
+    borderRadius: '1px',
+    animation: 'scaleIn 0.3s ease-out'
   },
   main: {
     maxWidth: '800px',
@@ -728,7 +836,8 @@ const styles = {
     backdropFilter: 'blur(10px)',
     borderRadius: '12px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)'
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    transform: 'translateY(0)'
   },
   cardHeader: {
     display: 'flex',
@@ -762,7 +871,8 @@ const styles = {
     border: '1px solid rgba(226, 232, 240, 0.5)',
     borderRadius: '8px',
     padding: '0.75rem',
-    marginBottom: '1.5rem'
+    marginBottom: '1.5rem',
+    transform: 'translateX(0)'
   },
   locationHeader: {
     display: 'flex',
@@ -819,7 +929,8 @@ const styles = {
     background: '#000',
     borderRadius: '8px',
     overflow: 'hidden',
-    border: '1px solid #e5e7eb'
+    border: '1px solid #e5e7eb',
+    transform: 'scale(1)'
   },
   cameraPlaceholder: {
     width: '100%',
@@ -880,7 +991,8 @@ const styles = {
     fontWeight: '600',
     fontSize: '0.9rem',
     width: '100%',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    transform: 'translateY(0)'
   },
   successButton: {
     display: 'flex',
@@ -940,7 +1052,8 @@ const styles = {
     borderRadius: '6px',
     border: '1px solid #e0f2fe',
     fontSize: '0.85rem',
-    color: '#0369a1'
+    color: '#0369a1',
+    transform: 'translateY(0)'
   },
   currentUserTitle: {
     fontWeight: '600'
@@ -967,7 +1080,8 @@ const styles = {
     justifyContent: 'center',
     color: 'white',
     fontSize: '1.5rem',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    transform: 'scale(1)'
   },
   profileInfo: {
     flex: 1
@@ -976,21 +1090,25 @@ const styles = {
     margin: '0 0 0.25rem 0',
     color: '#1f2937',
     fontSize: '1.5rem',
-    fontWeight: '600'
+    fontWeight: '600',
+    transform: 'translateX(0)'
   },
   profileId: {
     margin: '0 0 0.5rem 0',
     color: '#6b7280',
-    fontSize: '1rem'
+    fontSize: '1rem',
+    transform: 'translateX(0)'
   },
   profileConfidence: {
     margin: '0 0 1rem 0',
     color: '#6b7280',
-    fontSize: '0.9rem'
+    fontSize: '0.9rem',
+    transform: 'translateX(0)'
   },
   profileStats: {
     display: 'flex',
-    gap: '2rem'
+    gap: '2rem',
+    transform: 'translateY(0)'
   },
   statItem: {
     textAlign: 'center'
@@ -1026,7 +1144,8 @@ const styles = {
     borderBottom: '1px solid #e5e7eb'
   },
   tr: {
-    borderBottom: '1px solid #e5e7eb'
+    borderBottom: '1px solid #e5e7eb',
+    transform: 'translateX(0)'
   },
   td: {
     padding: '0.75rem',
@@ -1036,10 +1155,12 @@ const styles = {
     padding: '0.2rem 0.6rem',
     borderRadius: '12px',
     fontSize: '0.75rem',
-    fontWeight: '600'
+    fontWeight: '600',
+    transform: 'scale(1)'
   },
   statusBadge: {
-    fontSize: '0.9rem'
+    fontSize: '0.9rem',
+    transform: 'scale(1)'
   },
   emptyState: {
     textAlign: 'center',
@@ -1071,14 +1192,16 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
-    padding: '1rem'
+    padding: '1rem',
+    animation: 'fadeIn 0.3s ease-out'
   },
   popupContainer: {
     background: 'white',
     borderRadius: '12px',
     width: '100%',
     overflow: 'hidden',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+    transform: 'scale(1)'
   },
   popupHeader: {
     color: 'white',
@@ -1091,7 +1214,8 @@ const styles = {
   },
   popupTitle: {
     margin: 0,
-    fontWeight: '600'
+    fontWeight: '600',
+    transform: 'translateY(0)'
   },
   popupContent: {
     
@@ -1100,7 +1224,8 @@ const styles = {
     margin: '0.5rem 0',
     lineHeight: '1.5',
     color: '#374151',
-    fontSize: '0.9rem'
+    fontSize: '0.9rem',
+    transform: 'translateY(0)'
   },
   popupButtons: {
     
@@ -1111,7 +1236,8 @@ const styles = {
     border: 'none',
     fontWeight: '600',
     cursor: 'pointer',
-    borderRadius: '6px'
+    borderRadius: '6px',
+    transform: 'translateY(0)'
   },
   loadingOverlay: {
     position: 'fixed',
@@ -1123,14 +1249,16 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9999
+    zIndex: 9999,
+    animation: 'fadeIn 0.3s ease-out'
   },
   loadingContent: {
     background: 'white',
     padding: '1.5rem',
     borderRadius: '12px',
     textAlign: 'center',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+    animation: 'scaleIn 0.3s ease-out'
   },
   loadingSpinner: {
     width: '40px',
@@ -1154,6 +1282,210 @@ style.textContent = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInDown {
+    from { 
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideInDown {
+    from { 
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    to { 
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInUp {
+    from { 
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to { 
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInLeft {
+    from { 
+      transform: translateX(-30px);
+      opacity: 0;
+    }
+    to { 
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInRight {
+    from { 
+      transform: translateX(30px);
+      opacity: 0;
+    }
+    to { 
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes zoomIn {
+    from { 
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    to { 
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes scaleIn {
+    from { 
+      transform: scale(0);
+    }
+    to { 
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40%, 43% {
+      transform: translateY(-8px);
+    }
+    70% {
+      transform: translateY(-4px);
+    }
+    90% {
+      transform: translateY(-2px);
+    }
+  }
+  
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+  }
+  
+  @keyframes logoFloat {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  @keyframes textGlow {
+    0%, 100% {
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+      text-shadow: 0 2px 20px rgba(255, 255, 255, 0.5);
+    }
+  }
+  
+  @keyframes gradientShift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  @keyframes cardSlideIn {
+    from {
+      transform: translateY(30px) scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes popupSlideIn {
+    from {
+      transform: scale(0.8) translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Hover effects */
+  button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .navTab:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-1px) !important;
+  }
+  
+  .primaryButton:hover, .successButton:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;
   }
 `;
 document.head.appendChild(style);
