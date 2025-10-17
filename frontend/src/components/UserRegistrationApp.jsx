@@ -127,13 +127,20 @@ const UserRegistrationApp = ({ onNavigate }) => {
       }
 
       const imageBlob = await captureImage();
-      const formData = new FormData();
-      formData.append('file', imageBlob, 'registration.jpg');
-      formData.append('user_id', userData.userId);
-      formData.append('name', userData.name);
-      formData.append('password', userData.password);
+      // 🚀 Ganti kode register fetch() kamu dengan ini:
+       const formData = new FormData();
+       formData.append("file", selectedFile);   // <- foto wajah (Blob/File)
+       formData.append("name", name);
+       formData.append("user_id", userId);
+       formData.append("password", password);
 
-      const result = await callAPI('/register', formData);
+const response = await fetch(`${API_BASE}/register`, {
+  method: "POST",
+  body: formData, // ❌ Jangan pakai headers Content-Type manual!
+});
+
+const result = await response.json();
+console.log(result);
       
       if (result.success) {
         showPopup('success', 'Registrasi Berhasil! 🎉', 
