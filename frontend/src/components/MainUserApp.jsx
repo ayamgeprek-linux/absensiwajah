@@ -370,37 +370,6 @@ const MainUserApp = ({ onNavigate }) => {
     </div>
   );
 
-  const NavigationTabs = () => (
-    <div style={styles.navContainer}>
-      <div style={styles.navContent}>
-        {[
-          { id: 'attendance', label: 'Absensi', icon: '📷' },
-          { id: 'profile', label: 'Profil', icon: '👤' },
-          { id: 'records', label: 'Riwayat', icon: '📊' }
-        ].map((tab, index) => (
-          <button
-            key={tab.id}
-            onClick={() => setCurrentView(tab.id)}
-            style={{
-              ...styles.navTab,
-              ...(currentView === tab.id && styles.navTabActive),
-              animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
-            }}
-          >
-            <span style={{
-              ...styles.navTabIcon,
-              animation: currentView === tab.id ? 'bounce 0.5s ease-out' : 'none'
-            }}>{tab.icon}</span>
-            <span style={styles.navTabLabel}>{tab.label}</span>
-            {currentView === tab.id && (
-              <div style={styles.navTabActiveIndicator}></div>
-            )}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
   const AttendanceView = () => (
     <div style={{
       ...styles.card,
@@ -715,7 +684,7 @@ const MainUserApp = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Navigation tetap di sini */}
+          {/* Navigation di header saja */}
           <nav style={{
             ...styles.nav,
             flexDirection: isMobile ? 'column' : 'row',
@@ -756,8 +725,6 @@ const MainUserApp = ({ onNavigate }) => {
         {/* Animated Wave Bottom */}
         <div style={styles.headerWave}></div>
       </header>
-
-      <NavigationTabs />
 
       <main style={styles.main}>
         {currentView === 'attendance' && <AttendanceView />}
@@ -989,59 +956,6 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '500',
     transition: 'all 0.3s ease'
-  },
-
-  // Navigation Tabs
-  navContainer: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    backdropFilter: 'blur(10px)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-  },
-  navContent: {
-    maxWidth: '800px',
-    margin: '0 auto',
-    display: 'flex',
-    padding: '0.5rem 1rem',
-    gap: '0.5rem'
-  },
-  navTab: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.75rem 1rem',
-    background: 'transparent',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    position: 'relative',
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: '0.9rem',
-    fontWeight: '500',
-    transform: 'translateY(0)'
-  },
-  navTabActive: {
-    background: 'rgba(255, 255, 255, 0.15)',
-    color: 'white',
-    transform: 'translateY(-2px)'
-  },
-  navTabIcon: {
-    fontSize: '1.1rem'
-  },
-  navTabLabel: {
-    fontSize: '0.85rem'
-  },
-  navTabActiveIndicator: {
-    position: 'absolute',
-    bottom: '-0.5rem',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '16px',
-    height: '2px',
-    background: 'white',
-    borderRadius: '1px',
-    animation: 'scaleIn 0.3s ease-out'
   },
 
   // Main Content
