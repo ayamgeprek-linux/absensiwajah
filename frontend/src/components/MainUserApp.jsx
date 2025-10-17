@@ -667,34 +667,94 @@ const MainUserApp = ({ onNavigate }) => {
 
   return (
     <div style={styles.app}>
-      <header style={{
-        ...styles.header,
-        animation: 'slideInDown 0.6s ease-out'
-      }}>
-        <div style={styles.headerContent}>
+      {/* HEADER MODERN GEN-Z DENGAN ANIMASI KEREN */}
+      <header style={styles.header}>
+        <div style={styles.headerBackground}></div>
+        <div style={styles.headerAnimatedBg}></div>
+        
+        <div style={{
+          ...styles.headerContent,
+          padding: isMobile ? '2rem 1rem' : '3rem 1rem'
+        }}>
+          {/* Logo Section dengan Animasi */}
           <div style={styles.logoSection}>
-            <div style={{
-              ...styles.logoIcon,
-              animation: 'logoFloat 3s ease-in-out infinite'
-            }}>🤖</div>
+            <div style={styles.logoContainer}>
+              <div style={styles.logoOrb}></div>
+              <div style={styles.logoIcon}>🤖</div>
+              <div style={styles.logoParticles}>
+                <div style={styles.particle1}>✨</div>
+                <div style={styles.particle2}>🌟</div>
+                <div style={styles.particle3}>💫</div>
+              </div>
+            </div>
+            
             <div style={styles.textContainer}>
-              <h1 style={{
-                ...styles.logoTitle,
-                animation: 'textGlow 2s ease-in-out infinite'
-              }}>Absensi Wajah</h1>
+              <h1 style={styles.logoTitle}>
+                <span style={styles.logoTextMain}>Face</span>
+                <span style={styles.logoTextAccent}>Attendance</span>
+              </h1>
+              <p style={styles.logoSubtitle}>
+                Sistem Absensi Modern dengan Teknologi AI
+              </p>
+              
+              {/* Animated Stats */}
+              <div style={styles.headerStats}>
+                <div style={styles.statItem}>
+                  <span style={styles.statNumber}>99%</span>
+                  <span style={styles.statLabel}>Akurasi</span>
+                </div>
+                <div style={styles.statItem}>
+                  <span style={styles.statNumber}>⚡</span>
+                  <span style={styles.statLabel}>Real-time</span>
+                </div>
+                <div style={styles.statItem}>
+                  <span style={styles.statNumber}>📍</span>
+                  <span style={styles.statLabel}>GPS</span>
+                </div>
+              </div>
             </div>
           </div>
-          
-          <button 
-            onClick={() => onNavigate && onNavigate('registration')}
-            style={{
-              ...styles.registerButton,
-              animation: 'pulse 2s infinite'
-            }}
-          >
-            👥 Daftar Baru
-          </button>
+
+          {/* Navigation tetap di sini */}
+          <nav style={{
+            ...styles.nav,
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '0.5rem' : '0.5rem'
+          }}>
+            {[
+              { id: 'attendance', label: 'Absensi', icon: '📷' },
+              { id: 'profile', label: 'Profil', icon: '👤' },
+              { id: 'records', label: 'Riwayat', icon: '📊' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setCurrentView(tab.id)}
+                style={{
+                  ...styles.navItem,
+                  ...(currentView === tab.id && styles.navItemActive),
+                  padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
+                  fontSize: isMobile ? '0.8rem' : '14px'
+                }}
+              >
+                <span style={styles.navIcon}>{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+            <button 
+              onClick={() => onNavigate && onNavigate('registration')}
+              style={{
+                ...styles.backButton,
+                padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
+                fontSize: isMobile ? '0.8rem' : '14px'
+              }}
+            >
+              👥 Daftar Baru
+            </button>
+          </nav>
         </div>
+
+        {/* Animated Wave Bottom */}
+        <div style={styles.headerWave}></div>
       </header>
 
       <NavigationTabs />
@@ -726,55 +786,212 @@ const styles = {
     fontFamily: "'Inter', -apple-system, sans-serif",
     animation: 'gradientShift 8s ease infinite'
   },
+
+  // HEADER MODERN GEN-Z
   header: {
-    background: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(10px)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-    padding: '1rem 0'
+    position: 'relative',
+    overflow: 'hidden',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    padding: 0
+  },
+  headerBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: `
+      radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%)
+    `,
+    animation: 'gradientShift 8s ease-in-out infinite'
+  },
+  headerAnimatedBg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: `
+      linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%)
+    `,
+    animation: 'shimmer 3s ease-in-out infinite',
+    opacity: 0.5
   },
   headerContent: {
-    maxWidth: '800px',
+    position: 'relative',
+    maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 1rem',
+    zIndex: 2,
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '2rem'
   },
   logoSection: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem'
+    gap: '1.5rem',
+    flex: 1
+  },
+  logoContainer: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  logoOrb: {
+    position: 'absolute',
+    width: '80px',
+    height: '80px',
+    background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+    borderRadius: '50%',
+    animation: 'pulseOrb 3s ease-in-out infinite',
+    filter: 'blur(10px)'
   },
   logoIcon: {
-    fontSize: '2rem',
-    filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))'
+    fontSize: '3.5rem',
+    filter: 'drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3))',
+    animation: 'logoFloat 3s ease-in-out infinite',
+    zIndex: 2,
+    position: 'relative'
+  },
+  logoParticles: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none'
+  },
+  particle1: {
+    position: 'absolute',
+    top: '10%',
+    left: '20%',
+    fontSize: '1.2rem',
+    animation: 'floatParticle 4s ease-in-out infinite'
+  },
+  particle2: {
+    position: 'absolute',
+    bottom: '20%',
+    right: '10%',
+    fontSize: '1rem',
+    animation: 'floatParticle 5s ease-in-out infinite 1s'
+  },
+  particle3: {
+    position: 'absolute',
+    top: '50%',
+    left: '5%',
+    fontSize: '0.8rem',
+    animation: 'floatParticle 6s ease-in-out infinite 0.5s'
   },
   textContainer: {
-    textAlign: 'left'
+    textAlign: 'left',
+    flex: 1
   },
   logoTitle: {
+    margin: '0 0 0.5rem 0',
+    fontSize: '2.5rem',
+    fontWeight: '800',
+    lineHeight: 1.1
+  },
+  logoTextMain: {
+    display: 'block',
     color: 'white',
-    fontSize: '1.5rem',
-    fontWeight: '700',
-    margin: 0,
-    background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
+    textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+    animation: 'textGlow 2s ease-in-out infinite'
+  },
+  logoTextAccent: {
+    display: 'block',
+    background: 'linear-gradient(135deg, #ffd89b 0%, #19547b 100%)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
+    animation: 'gradientText 3s ease-in-out infinite',
+    fontWeight: '900'
   },
-  registerButton: {
-    padding: '0.5rem 1rem',
+  logoSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: '1.1rem',
+    margin: '0 0 1.5rem 0',
+    fontWeight: '500',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+    animation: 'fadeInUp 1s ease-out 0.5s both'
+  },
+  headerStats: {
+    display: 'flex',
+    gap: '2rem',
+    animation: 'fadeInUp 1s ease-out 0.8s both'
+  },
+  statItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.25rem'
+  },
+  statNumber: {
+    fontSize: '1.2rem',
+    fontWeight: '700',
+    color: 'white',
+    textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+    animation: 'bounce 2s infinite'
+  },
+  statLabel: {
+    fontSize: '0.8rem',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500'
+  },
+  headerWave: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '4px',
+    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+    animation: 'waveMove 2s linear infinite'
+  },
+
+  // Navigation styles
+  nav: {
+    display: 'flex',
+    alignItems: 'center',
+    background: 'rgba(255, 255, 255, 0.1)',
+    padding: '0.5rem',
+    borderRadius: '12px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(10px)'
+  },
+  navItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    background: 'transparent',
+    border: 'none',
+    borderRadius: '8px',
+    color: 'rgba(255, 255, 255, 0.9)',
+    cursor: 'pointer',
+    fontWeight: '500',
+    transition: 'all 0.3s ease'
+  },
+  navItemActive: {
     background: 'rgba(255, 255, 255, 0.2)',
     color: 'white',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+  },
+  navIcon: {
+    fontSize: '1.1rem'
+  },
+  backButton: {
+    background: 'rgba(255, 255, 255, 0.2)',
+    color: 'white',
+    border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '600',
-    fontSize: '0.85rem',
-    backdropFilter: 'blur(10px)',
-    transform: 'scale(1)'
+    fontWeight: '500',
+    transition: 'all 0.3s ease'
   },
+
+  // Navigation Tabs
   navContainer: {
     background: 'rgba(255, 255, 255, 0.05)',
     backdropFilter: 'blur(10px)',
@@ -826,6 +1043,8 @@ const styles = {
     borderRadius: '1px',
     animation: 'scaleIn 0.3s ease-out'
   },
+
+  // Main Content
   main: {
     maxWidth: '800px',
     margin: '0 auto',
@@ -866,6 +1085,8 @@ const styles = {
     color: '#6b7280',
     fontWeight: '500'
   },
+
+  // Location Status
   locationStatus: {
     background: 'rgba(248, 250, 252, 0.8)',
     border: '1px solid rgba(226, 232, 240, 0.5)',
@@ -920,6 +1141,8 @@ const styles = {
     fontSize: '0.75rem',
     fontWeight: '500'
   },
+
+  // Camera Section
   cameraSection: {
     position: 'relative',
     marginBottom: '1.5rem'
@@ -970,6 +1193,8 @@ const styles = {
     borderRadius: '12px',
     boxShadow: '0 0 0 100vmax rgba(0, 0, 0, 0.4)'
   },
+
+  // Controls
   controls: {
     textAlign: 'center'
   },
@@ -1029,6 +1254,8 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.9rem'
   },
+
+  // Spinners
   spinner: {
     width: '14px',
     height: '14px',
@@ -1045,6 +1272,8 @@ const styles = {
     borderRadius: '50%',
     animation: 'spin 1s linear infinite'
   },
+
+  // Current User
   currentUser: {
     marginTop: '1rem',
     padding: '0.75rem',
@@ -1065,6 +1294,8 @@ const styles = {
   currentUserId: {
     color: '#6b7280'
   },
+
+  // Profile
   profileContent: {
     display: 'flex',
     alignItems: 'center',
@@ -1125,6 +1356,8 @@ const styles = {
     color: '#6b7280',
     fontWeight: '500'
   },
+
+  // Table
   tableContainer: {
     overflowX: 'auto',
     borderRadius: '8px',
@@ -1162,6 +1395,8 @@ const styles = {
     fontSize: '0.9rem',
     transform: 'scale(1)'
   },
+
+  // Empty State
   emptyState: {
     textAlign: 'center',
     padding: '2rem',
@@ -1181,6 +1416,8 @@ const styles = {
     fontSize: '0.8rem',
     opacity: 0.7
   },
+
+  // Popup
   popupOverlay: {
     position: 'fixed',
     top: 0,
@@ -1239,6 +1476,8 @@ const styles = {
     borderRadius: '6px',
     transform: 'translateY(0)'
   },
+
+  // Loading Overlay
   loadingOverlay: {
     position: 'fixed',
     top: 0,
@@ -1279,6 +1518,7 @@ const styles = {
 
 const style = document.createElement('style');
 style.textContent = `
+  /* Animasi yang sudah ada */
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -1300,17 +1540,6 @@ style.textContent = `
     }
   }
   
-  @keyframes fadeInDown {
-    from { 
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to { 
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
   @keyframes slideInDown {
     from { 
       transform: translateY(-30px);
@@ -1322,17 +1551,106 @@ style.textContent = `
     }
   }
   
-  @keyframes slideInUp {
-    from { 
-      transform: translateY(30px);
-      opacity: 0;
-    }
-    to { 
+  @keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
       transform: translateY(0);
-      opacity: 1;
+    }
+    40%, 43% {
+      transform: translateY(-8px);
+    }
+    70% {
+      transform: translateY(-4px);
+    }
+    90% {
+      transform: translateY(-2px);
+    }
+  }
+
+  /* ANIMASI BARU UNTUK HEADER GEN-Z */
+  @keyframes gradientShift {
+    0%, 100% { 
+      background-position: 0% 50%;
+      filter: hue-rotate(0deg);
+    }
+    50% { 
+      background-position: 100% 50%;
+      filter: hue-rotate(45deg);
     }
   }
   
+  @keyframes logoFloat {
+    0%, 100% { 
+      transform: translateY(0px) rotate(0deg);
+    }
+    33% { 
+      transform: translateY(-6px) rotate(2deg);
+    }
+    66% { 
+      transform: translateY(3px) rotate(-1deg);
+    }
+  }
+  
+  @keyframes pulseOrb {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% { 
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
+  }
+  
+  @keyframes floatParticle {
+    0%, 100% { 
+      transform: translate(0, 0) rotate(0deg);
+      opacity: 0;
+    }
+    10%, 90% { 
+      opacity: 1;
+    }
+    50% { 
+      transform: translate(20px, -20px) rotate(180deg);
+    }
+  }
+  
+  @keyframes textGlow {
+    0%, 100% { 
+      text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+    50% { 
+      text-shadow: 0 0 30px rgba(255,255,255,0.8), 0 0 40px rgba(255,255,255,0.6);
+    }
+  }
+  
+  @keyframes gradientText {
+    0%, 100% { 
+      background-position: 0% 50%;
+    }
+    50% { 
+      background-position: 100% 50%;
+    }
+  }
+  
+  @keyframes shimmer {
+    0% { 
+      transform: translateX(-100%) skewX(-15deg);
+    }
+    100% { 
+      transform: translateX(200%) skewX(-15deg);
+    }
+  }
+  
+  @keyframes waveMove {
+    0% { 
+      transform: translateX(-100%);
+    }
+    100% { 
+      transform: translateX(100%);
+    }
+  }
+
+  /* Animasi untuk komponen lainnya */
   @keyframes slideInLeft {
     from { 
       transform: translateX(-30px);
@@ -1375,21 +1693,6 @@ style.textContent = `
     }
   }
   
-  @keyframes bounce {
-    0%, 20%, 53%, 80%, 100% {
-      transform: translateY(0);
-    }
-    40%, 43% {
-      transform: translateY(-8px);
-    }
-    70% {
-      transform: translateY(-4px);
-    }
-    90% {
-      transform: translateY(-2px);
-    }
-  }
-  
   @keyframes bounceIn {
     0% {
       transform: scale(0);
@@ -1410,33 +1713,6 @@ style.textContent = `
     50% {
       transform: scale(1.05);
       opacity: 0.8;
-    }
-  }
-  
-  @keyframes logoFloat {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-5px);
-    }
-  }
-  
-  @keyframes textGlow {
-    0%, 100% {
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-    50% {
-      text-shadow: 0 2px 20px rgba(255, 255, 255, 0.5);
-    }
-  }
-  
-  @keyframes gradientShift {
-    0%, 100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
     }
   }
   
@@ -1471,21 +1747,62 @@ style.textContent = `
     }
   }
   
-  /* Hover effects */
+  /* Hover effects modern */
   button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-    transition: all 0.3s ease !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
   }
   
-  .navTab:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
+  .navItem:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
     transform: translateY(-1px) !important;
   }
   
-  .primaryButton:hover, .successButton:hover {
-    transform: translateY(-2px) scale(1.02) !important;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;
+  .navItemActive {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .navItemActive::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .headerContent {
+      flex-direction: column;
+      text-align: center;
+      gap: 1.5rem;
+    }
+    
+    .logoSection {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .headerStats {
+      justify-content: center;
+    }
+    
+    .logoTitle {
+      font-size: 2rem;
+    }
+    
+    .logoSubtitle {
+      font-size: 1rem;
+    }
+    
+    input, button {
+      font-size: 16px !important;
+    }
   }
 `;
 document.head.appendChild(style);
