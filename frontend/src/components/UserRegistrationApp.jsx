@@ -227,43 +227,24 @@ const UserRegistrationApp = ({ onNavigate }) => {
 
   return (
     <div style={styles.app}>
-      {/* HEADER YANG SUDAH DIUPDATE DENGAN DESAIN MODERN & ANIMASI */}
+      {/* HEADER SIMPLE & MODERN */}
       <header style={styles.header}>
         <div style={styles.headerBackground}></div>
         <div style={{
           ...styles.headerContent,
-          maxWidth: isMobile ? '100%' : '1200px',
           padding: isMobile ? '2rem 1rem' : '3rem 2rem'
         }}>
-          <div style={styles.logoContainer}>
-            <div style={styles.animatedLogo}>
+          <div style={styles.logoSection}>
+            <div style={styles.logoContainer}>
               <div style={styles.logoIcon}>🤖</div>
-              <div style={styles.logoPulse}></div>
+              <div style={styles.logoGlow}></div>
             </div>
-            <h1 style={{
-              ...styles.logo,
-              fontSize: isMobile ? '2.2rem' : '3.5rem'
-            }}>
-              <span style={styles.logoText}>Pendaftaran</span>
-              <span style={styles.logoHighlight}>User</span>
-            </h1>
-          </div>
-          
-          <div style={styles.subtitleContainer}>
-            <p style={{
-              ...styles.subtitle,
-              fontSize: isMobile ? '1rem' : '1.3rem'
-            }}>
-              <span style={styles.typingText}>Daftarkan diri Anda untuk mulai menggunakan sistem absensi</span>
-            </p>
-            <div style={styles.floatingElements}>
-              <div style={styles.floatingElement1}>✨</div>
-              <div style={styles.floatingElement2}>🚀</div>
-              <div style={styles.floatingElement3}>💫</div>
+            <div style={styles.textContainer}>
+              <h1 style={styles.logoTitle}>Daftar Sekarang</h1>
+              <p style={styles.logoSubtitle}>Buat akun untuk akses sistem absensi wajah</p>
             </div>
           </div>
-
-          <div style={styles.headerWave}></div>
+          <div style={styles.headerOrnament}></div>
         </div>
       </header>
 
@@ -531,8 +512,7 @@ const styles = {
   header: {
     position: 'relative',
     overflow: 'hidden',
-    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%)',
-    padding: 0,
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     textAlign: 'center'
   },
   headerBackground: {
@@ -543,33 +523,32 @@ const styles = {
     bottom: 0,
     background: `
       radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%)
+      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%)
     `,
     animation: 'gradientShift 8s ease-in-out infinite'
   },
   headerContent: {
     position: 'relative',
+    maxWidth: '1200px',
     margin: '0 auto',
     zIndex: 2
   },
-  logoContainer: {
+  logoSection: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '1rem',
-    marginBottom: '1.5rem'
+    gap: '1rem'
   },
-  animatedLogo: {
+  logoContainer: {
     position: 'relative',
     display: 'inline-block'
   },
   logoIcon: {
     fontSize: '4rem',
     filter: 'drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3))',
-    animation: 'float 3s ease-in-out infinite'
+    animation: 'logoFloat 3s ease-in-out infinite'
   },
-  logoPulse: {
+  logoGlow: {
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -580,83 +559,35 @@ const styles = {
     background: 'rgba(255, 255, 255, 0.1)',
     animation: 'pulse 2s ease-out infinite'
   },
-  logo: {
-    color: 'white',
-    margin: 0,
-    fontWeight: '800',
-    textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-    lineHeight: 1.2
+  textContainer: {
+    textAlign: 'center'
   },
-  logoText: {
-    display: 'block',
+  logoTitle: {
+    color: 'white',
+    fontSize: '2.5rem',
+    fontWeight: '800',
+    margin: '0 0 0.5rem 0',
+    textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
     background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
-  logoHighlight: {
-    display: 'block',
-    background: 'linear-gradient(135deg, #ffd89b 0%, #19547b 100%)',
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    animation: 'textShine 3s ease-in-out infinite'
-  },
-  subtitleContainer: {
-    position: 'relative',
-    display: 'inline-block'
-  },
-  subtitle: {
+  logoSubtitle: {
     color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: '1.1rem',
     margin: 0,
     fontWeight: '500',
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-    background: 'linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%)',
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent'
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
   },
-  typingText: {
-    borderRight: '2px solid rgba(255, 255, 255, 0.7)',
-    animation: 'typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite'
-  },
-  floatingElements: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    pointerEvents: 'none'
-  },
-  floatingElement1: {
-    position: 'absolute',
-    top: '20%',
-    left: '10%',
-    fontSize: '1.5rem',
-    animation: 'float 6s ease-in-out infinite'
-  },
-  floatingElement2: {
-    position: 'absolute',
-    top: '60%',
-    right: '15%',
-    fontSize: '1.2rem',
-    animation: 'float 4s ease-in-out infinite 1s'
-  },
-  floatingElement3: {
-    position: 'absolute',
-    bottom: '30%',
-    left: '20%',
-    fontSize: '1rem',
-    animation: 'float 5s ease-in-out infinite 0.5s'
-  },
-  headerWave: {
+  headerOrnament: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: '4rem',
-    background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0v46.29c47.79 22.2 103.59 32.17 158 28 70.36-5.37 136.33-33.31 206.8-37.5 73.84-4.36 147.54 16.88 218.2 35.26 69.27 18 138.3 24.88 209.4 13.08 36.15-6 69.85-17.84 104.45-29.34C989.49 25 1113-14.29 1200 52.47V0z' fill='%23ffffff' fill-opacity='0.1'/%3E%3C/svg%3E")`,
-    animation: 'wave 8s linear infinite'
+    height: '4px',
+    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)',
+    animation: 'shimmer 3s ease-in-out infinite'
   },
   main: {
     margin: '0 auto',
@@ -993,9 +924,9 @@ style.textContent = `
     100% { transform: rotate(360deg); }
   }
   
-  @keyframes float {
+  @keyframes logoFloat {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-8px); }
   }
   
   @keyframes pulse {
@@ -1008,25 +939,9 @@ style.textContent = `
     50% { background-position: 100% 50%; }
   }
   
-  @keyframes textShine {
-    0%, 100% { filter: hue-rotate(0deg); }
-    50% { filter: hue-rotate(45deg); }
-  }
-  
-  @keyframes typing {
-    from { width: 0; }
-    to { width: 100%; }
-  }
-  
-  @keyframes blink-caret {
-    from, to { border-color: transparent; }
-    50% { border-color: rgba(255, 255, 255, 0.7); }
-  }
-  
-  @keyframes wave {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(-30px); }
-    100% { transform: translateX(0); }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
   
   @keyframes cardEntrance {
@@ -1079,17 +994,13 @@ style.textContent = `
       font-size: 16px !important;
     }
     
-    /* Smooth scrolling */
-    html {
-      scroll-behavior: smooth;
+    .logoTitle {
+      font-size: 2rem !important;
     }
-  }
-  
-  /* Glass morphism effects */
-  .glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    .logoSubtitle {
+      font-size: 1rem !important;
+    }
   }
   
   /* Hover effects */
