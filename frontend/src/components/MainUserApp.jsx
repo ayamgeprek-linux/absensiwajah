@@ -735,7 +735,7 @@ const MainUserApp = ({ onNavigate }) => {
         }}>
           <div style={styles.logoSection}>
             <div style={styles.logoContainer}>
-              <div style={styles.logoIcon}>🤖</div>
+              <div style={styles.logoIcon}></div>
               <div style={styles.logoGlow}></div>
             </div>
             <div style={styles.textContainer}>
