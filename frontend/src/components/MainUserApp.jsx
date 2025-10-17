@@ -370,6 +370,37 @@ const MainUserApp = ({ onNavigate }) => {
     </div>
   );
 
+  const NavigationTabs = () => (
+    <div style={styles.navContainer}>
+      <div style={styles.navContent}>
+        {[
+          { id: 'attendance', label: 'Absensi', icon: '📷' },
+          { id: 'profile', label: 'Profil', icon: '👤' },
+          { id: 'records', label: 'Riwayat', icon: '📊' }
+        ].map((tab, index) => (
+          <button
+            key={tab.id}
+            onClick={() => setCurrentView(tab.id)}
+            style={{
+              ...styles.navTab,
+              ...(currentView === tab.id && styles.navTabActive),
+              animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`
+            }}
+          >
+            <span style={{
+              ...styles.navTabIcon,
+              animation: currentView === tab.id ? 'bounce 0.5s ease-out' : 'none'
+            }}>{tab.icon}</span>
+            <span style={styles.navTabLabel}>{tab.label}</span>
+            {currentView === tab.id && (
+              <div style={styles.navTabActiveIndicator}></div>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   const AttendanceView = () => (
     <div style={{
       ...styles.card,
@@ -684,47 +715,32 @@ const MainUserApp = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Navigation di header saja */}
-          <nav style={{
-            ...styles.nav,
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: isMobile ? '0.5rem' : '0.5rem'
-          }}>
-            {[
-              { id: 'attendance', label: 'Absensi', icon: '📷' },
-              { id: 'profile', label: 'Profil', icon: '👤' },
-              { id: 'records', label: 'Riwayat', icon: '📊' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setCurrentView(tab.id)}
-                style={{
-                  ...styles.navItem,
-                  ...(currentView === tab.id && styles.navItemActive),
-                  padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
-                  fontSize: isMobile ? '0.8rem' : '14px'
-                }}
-              >
-                <span style={styles.navIcon}>{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-            <button 
-              onClick={() => onNavigate && onNavigate('registration')}
-              style={{
-                ...styles.backButton,
-                padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
-                fontSize: isMobile ? '0.8rem' : '14px'
-              }}
-            >
-              👥 Daftar Baru
-            </button>
-          </nav>
+          {/* Hanya tombol Daftar Baru di header */}
+          <button 
+            onClick={() => onNavigate && onNavigate('registration')}
+            style={{
+              ...styles.backButton,
+              padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
+              fontSize: isMobile ? '0.8rem' : '14px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            👥 Daftar Baru
+          </button>
         </div>
 
         {/* Animated Wave Bottom */}
         <div style={styles.headerWave}></div>
       </header>
+
+      {/* Navigation Tabs di bawah header */}
+      <NavigationTabs />
 
       <main style={styles.main}>
         {currentView === 'attendance' && <AttendanceView />}
@@ -918,44 +934,57 @@ const styles = {
     animation: 'waveMove 2s linear infinite'
   },
 
-  // Navigation styles
-  nav: {
-    display: 'flex',
-    alignItems: 'center',
-    background: 'rgba(255, 255, 255, 0.1)',
-    padding: '0.5rem',
-    borderRadius: '12px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)'
+  // Navigation Tabs
+  navContainer: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(10px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
   },
-  navItem: {
+  navContent: {
+    maxWidth: '800px',
+    margin: '0 auto',
+    display: 'flex',
+    padding: '0.5rem 1rem',
+    gap: '0.5rem'
+  },
+  navTab: {
+    flex: 1,
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
+    padding: '0.75rem 1rem',
     background: 'transparent',
     border: 'none',
     borderRadius: '8px',
-    color: 'rgba(255, 255, 255, 0.9)',
     cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    position: 'relative',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '0.9rem',
     fontWeight: '500',
-    transition: 'all 0.3s ease'
+    transform: 'translateY(0)'
   },
-  navItemActive: {
-    background: 'rgba(255, 255, 255, 0.2)',
+  navTabActive: {
+    background: 'rgba(255, 255, 255, 0.15)',
     color: 'white',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+    transform: 'translateY(-2px)'
   },
-  navIcon: {
+  navTabIcon: {
     fontSize: '1.1rem'
   },
-  backButton: {
-    background: 'rgba(255, 255, 255, 0.2)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontWeight: '500',
-    transition: 'all 0.3s ease'
+  navTabLabel: {
+    fontSize: '0.85rem'
+  },
+  navTabActiveIndicator: {
+    position: 'absolute',
+    bottom: '-0.5rem',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '16px',
+    height: '2px',
+    background: 'white',
+    borderRadius: '1px',
+    animation: 'scaleIn 0.3s ease-out'
   },
 
   // Main Content
@@ -1668,17 +1697,17 @@ style.textContent = `
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
   }
   
-  .navItem:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
+  .navTab:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
     transform: translateY(-1px) !important;
   }
   
-  .navItemActive {
+  .navTabActive {
     position: relative;
     overflow: hidden;
   }
   
-  .navItemActive::before {
+  .navTabActive::before {
     content: '';
     position: absolute;
     top: 0;
