@@ -4,6 +4,18 @@ const LoginApp = ({ onNavigate }) => {
   const [form, setForm] = useState({ userId: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Cek device mobile
+  React.useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Gunakan env variable di Vercel jika tersedia, fallback ke Hugging Face
   const API_BASE = process.env.REACT_APP_API_URL || 'https://haritsdulloh-absensiwajah.hf.space';
@@ -29,10 +41,9 @@ const LoginApp = ({ onNavigate }) => {
           user_id: form.userId,
           password: form.password
         }),
-        mode: 'cors' // Penting biar bisa akses cross-domain
+        mode: 'cors'
       });
 
-      // Coba parse hasil response
       const result = await response.json().catch(() => ({
         success: false,
         error: 'Gagal parsing response dari server'
@@ -99,22 +110,43 @@ const LoginApp = ({ onNavigate }) => {
 
     return (
       <div style={styles.popupOverlay} onClick={closePopup}>
-        <div style={styles.popupContainer} onClick={(e) => e.stopPropagation()}>
-          <div style={{ ...styles.popupHeader, background: config.bgColor }}>
+        <div style={{
+          ...styles.popupContainer,
+          maxWidth: isMobile ? '90vw' : '450px'
+        }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ 
+            ...styles.popupHeader, 
+            background: config.bgColor,
+            padding: isMobile ? '1rem' : '1.5rem'
+          }}>
             <div style={styles.popupIcon}>{config.icon}</div>
-            <h3 style={styles.popupTitle}>{popup.title}</h3>
+            <h3 style={{
+              ...styles.popupTitle,
+              fontSize: isMobile ? '1.1rem' : '1.2rem'
+            }}>{popup.title}</h3>
           </div>
-          <div style={styles.popupContent}>
+          <div style={{
+            ...styles.popupContent,
+            padding: isMobile ? '1rem' : '1.5rem'
+          }}>
             {popup.message.split('\n').map((line, index) => (
               <p key={index} style={styles.popupText}>{line}</p>
             ))}
           </div>
-          <div style={styles.popupButtons}>
+          <div style={{
+            ...styles.popupButtons,
+            padding: isMobile ? '1rem' : '0 1.5rem 1.5rem 1.5rem'
+          }}>
             <button
               onClick={closePopup}
-              style={{ ...styles.popupButton, background: config.buttonColor }}
+              style={{ 
+                ...styles.popupButton, 
+                background: config.buttonColor,
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                padding: isMobile ? '0.8rem' : '1rem'
+              }}
             >
-              {popup.type === 'success' ? 'Lanjutkan' : 'Mengerti'}
+              {popup.type === 'success' ? '🎉 Lanjutkan' : 'Mengerti'}
             </button>
           </div>
         </div>
@@ -124,22 +156,50 @@ const LoginApp = ({ onNavigate }) => {
 
   return (
     <div style={styles.app}>
+      {/* HEADER MODERN & SIMPLE */}
       <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <h1 style={styles.logo}>🔐 Login Sistem</h1>
-          <p style={styles.subtitle}>Masuk ke sistem absensi wajah</p>
+        <div style={styles.headerBackground}></div>
+        <div style={{
+          ...styles.headerContent,
+          padding: isMobile ? '2rem 1rem' : '3rem 2rem'
+        }}>
+          <div style={styles.logoSection}>
+            <div style={styles.logoContainer}>
+              <div style={styles.logoIcon}>🔐</div>
+              <div style={styles.logoGlow}></div>
+            </div>
+            <div style={styles.textContainer}>
+              <h1 style={styles.logoTitle}>Login Sistem</h1>
+              <p style={styles.logoSubtitle}>Masuk ke sistem absensi wajah</p>
+            </div>
+          </div>
+          <div style={styles.headerOrnament}></div>
         </div>
       </header>
 
-      <main style={styles.main}>
-        <div style={styles.card}>
+      <main style={{
+        ...styles.main,
+        padding: isMobile ? '1rem 0.5rem' : '2rem 1rem',
+        maxWidth: isMobile ? '100%' : '500px'
+      }}>
+        <div style={{
+          ...styles.card,
+          padding: isMobile ? '1.5rem 1rem' : '2rem',
+          borderRadius: isMobile ? '16px' : '20px'
+        }}>
           <div style={styles.cardHeader}>
-            <h2 style={styles.cardTitle}>📋 Form Login</h2>
+            <h2 style={{
+              ...styles.cardTitle,
+              fontSize: isMobile ? '1.3rem' : '1.5rem'
+            }}>📋 Form Login</h2>
           </div>
 
           <form onSubmit={handleLogin} style={styles.form}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>
+              <label style={{
+                ...styles.label,
+                fontSize: isMobile ? '0.9rem' : '14px'
+              }}>
                 <span style={styles.labelIcon}>🆔</span>
                 User ID
               </label>
@@ -148,13 +208,20 @@ const LoginApp = ({ onNavigate }) => {
                 value={form.userId}
                 onChange={(e) => setForm({ ...form, userId: e.target.value })}
                 placeholder="Masukkan User ID"
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  padding: isMobile ? '0.8rem' : '1rem',
+                  fontSize: isMobile ? '0.9rem' : '1rem'
+                }}
                 required
               />
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.label}>
+              <label style={{
+                ...styles.label,
+                fontSize: isMobile ? '0.9rem' : '14px'
+              }}>
                 <span style={styles.labelIcon}>🔒</span>
                 Password
               </label>
@@ -163,7 +230,11 @@ const LoginApp = ({ onNavigate }) => {
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="Masukkan Password"
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  padding: isMobile ? '0.8rem' : '1rem',
+                  fontSize: isMobile ? '0.9rem' : '1rem'
+                }}
                 required
               />
             </div>
@@ -174,7 +245,9 @@ const LoginApp = ({ onNavigate }) => {
                 disabled={loading || !form.userId || !form.password}
                 style={{
                   ...styles.primaryButton,
-                  opacity: (!form.userId || !form.password) ? 0.6 : 1
+                  opacity: (!form.userId || !form.password) ? 0.6 : 1,
+                  padding: isMobile ? '0.8rem 1.5rem' : '1rem 2rem',
+                  fontSize: isMobile ? '0.9rem' : '1rem'
                 }}
               >
                 {loading ? (
@@ -183,14 +256,17 @@ const LoginApp = ({ onNavigate }) => {
                     Memproses...
                   </>
                 ) : (
-                  '🚀 Login'
+                  '🚀 Login Sekarang'
                 )}
               </button>
             </div>
           </form>
 
           <div style={styles.authLinks}>
-            <p style={styles.authText}>
+            <p style={{
+              ...styles.authText,
+              fontSize: isMobile ? '0.9rem' : '1rem'
+            }}>
               Belum punya akun?{' '}
               <button
                 onClick={() => onNavigate('registration')}
@@ -201,9 +277,20 @@ const LoginApp = ({ onNavigate }) => {
             </p>
           </div>
 
-          <div style={styles.infoBox}>
-            <h3 style={styles.infoTitle}>📋 Petunjuk Login:</h3>
-            <ul style={styles.infoList}>
+          <div style={{
+            ...styles.infoBox,
+            marginTop: isMobile ? '1.5rem' : '2rem',
+            padding: isMobile ? '1rem' : '1.5rem'
+          }}>
+            <h3 style={{
+              ...styles.infoTitle,
+              fontSize: isMobile ? '1rem' : '1.1rem'
+            }}>📋 Petunjuk Login:</h3>
+            <ul style={{
+              ...styles.infoList,
+              fontSize: isMobile ? '0.8rem' : '1rem',
+              paddingLeft: isMobile ? '1rem' : '1.5rem'
+            }}>
               <li>Masukkan User ID dan password yang sudah didaftarkan</li>
               <li>Pastikan Anda sudah melakukan registrasi terlebih dahulu</li>
               <li>Hubungi admin jika lupa password</li>
@@ -216,7 +303,10 @@ const LoginApp = ({ onNavigate }) => {
 
       {loading && (
         <div style={styles.loadingOverlay}>
-          <div style={styles.loadingContent}>
+          <div style={{
+            ...styles.loadingContent,
+            padding: isMobile ? '1.5rem' : '2rem'
+          }}>
             <div style={styles.loadingSpinner}></div>
             <p style={styles.loadingText}>Memproses login...</p>
           </div>
@@ -226,51 +316,104 @@ const LoginApp = ({ onNavigate }) => {
   );
 };
 
-// Gaya tetap sama seperti versi kamu
 const styles = {
   app: {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-    fontFamily: 'Inter, system-ui, sans-serif'
+    fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif"
   },
   header: {
-    background: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(20px)',
-    padding: '2rem 0',
+    position: 'relative',
+    overflow: 'hidden',
+    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
     textAlign: 'center'
   },
-  headerContent: {
-    maxWidth: '500px',
-    margin: '0 auto',
-    padding: '0 1rem'
+  headerBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: `
+      radial-gradient(circle at 20% 80%, rgba(96, 165, 250, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.4) 0%, transparent 50%)
+    `,
+    animation: 'gradientShift 8s ease-in-out infinite'
   },
-  logo: {
-    color: '#1f2937',
-    margin: '0 0 0.5rem 0',
+  headerContent: {
+    position: 'relative',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    zIndex: 2
+  },
+  logoSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '1rem'
+  },
+  logoContainer: {
+    position: 'relative',
+    display: 'inline-block'
+  },
+  logoIcon: {
+    fontSize: '4rem',
+    filter: 'drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3))',
+    animation: 'logoFloat 3s ease-in-out infinite'
+  },
+  logoGlow: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    background: 'rgba(255, 255, 255, 0.1)',
+    animation: 'pulse 2s ease-out infinite'
+  },
+  textContainer: {
+    textAlign: 'center'
+  },
+  logoTitle: {
+    color: 'white',
     fontSize: '2.5rem',
     fontWeight: '800',
-    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+    margin: '0 0 0.5rem 0',
+    textShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+    background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent'
   },
-  subtitle: {
-    color: '#6b7280',
-    margin: 0,
+  logoSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
     fontSize: '1.1rem',
-    fontWeight: '500'
+    margin: 0,
+    fontWeight: '500',
+    textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
+  },
+  headerOrnament: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '4px',
+    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)',
+    animation: 'shimmer 3s ease-in-out infinite'
   },
   main: {
-    maxWidth: '500px',
     margin: '0 auto',
-    padding: '2rem 1rem'
   },
   card: {
-    background: 'white',
-    borderRadius: '20px',
-    padding: '2rem',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)'
+    background: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(20px)',
+    boxShadow: `
+      0 25px 50px -12px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.1)
+    `,
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    animation: 'cardEntrance 0.8s ease-out'
   },
   cardHeader: {
     textAlign: 'center',
@@ -279,8 +422,11 @@ const styles = {
   cardTitle: {
     color: '#1f2937',
     margin: 0,
-    fontSize: '1.5rem',
-    fontWeight: '700'
+    fontWeight: '700',
+    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+    backgroundClip: 'text',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent'
   },
   form: {
     display: 'flex',
@@ -295,20 +441,20 @@ const styles = {
   label: {
     fontWeight: '600',
     color: '#374151',
-    fontSize: '14px',
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem'
   },
   labelIcon: {
-    fontSize: '1.1rem'
+    fontSize: '1.1rem',
+    animation: 'wiggle 3s ease-in-out infinite'
   },
   input: {
-    padding: '1rem',
-    border: '2px solid #e5e7eb',
-    borderRadius: '10px',
-    fontSize: '1rem',
-    transition: 'all 0.3s ease'
+    border: '2px solid rgba(229, 231, 235, 0.8)',
+    borderRadius: '12px',
+    transition: 'all 0.3s ease',
+    background: 'rgba(255, 255, 255, 0.8)',
+    backdropFilter: 'blur(10px)'
   },
   controls: {
     marginTop: '1rem'
@@ -317,18 +463,18 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
-    padding: '1rem 2rem',
     background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
     color: 'white',
     border: 'none',
     borderRadius: '12px',
     cursor: 'pointer',
-    fontSize: '1rem',
     fontWeight: '600',
     transition: 'all 0.3s ease',
     boxShadow: '0 8px 25px rgba(59, 130, 246, 0.3)',
     width: '100%',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden'
   },
   spinner: {
     width: '16px',
@@ -342,7 +488,7 @@ const styles = {
     marginTop: '2rem',
     textAlign: 'center',
     paddingTop: '1.5rem',
-    borderTop: '1px solid #e5e7eb'
+    borderTop: '1px solid rgba(229, 231, 235, 0.5)'
   },
   authText: {
     color: '#6b7280',
@@ -354,25 +500,23 @@ const styles = {
     color: '#3b82f6',
     textDecoration: 'underline',
     cursor: 'pointer',
-    fontWeight: '600'
+    fontWeight: '600',
+    transition: 'all 0.3s ease'
   },
   infoBox: {
-    marginTop: '2rem',
-    padding: '1.5rem',
-    background: '#f9fafb',
-    borderRadius: '12px',
-    border: '1px solid #e5e7eb'
+    background: 'rgba(249, 250, 251, 0.8)',
+    borderRadius: '16px',
+    border: '1px solid rgba(229, 231, 235, 0.5)',
+    backdropFilter: 'blur(10px)'
   },
   infoTitle: {
     color: '#374151',
     margin: '0 0 1rem 0',
-    fontSize: '1.1rem',
     fontWeight: '600'
   },
   infoList: {
     color: '#6b7280',
     margin: 0,
-    paddingLeft: '1.5rem',
     lineHeight: '1.6'
   },
   popupOverlay: {
@@ -386,33 +530,35 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
-    padding: '1rem'
+    padding: '1rem',
+    backdropFilter: 'blur(5px)'
   },
   popupContainer: {
-    background: 'white',
+    background: 'rgba(255, 255, 255, 0.95)',
     borderRadius: '20px',
-    maxWidth: '450px',
     width: '100%',
     overflow: 'hidden',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    animation: 'popupEntrance 0.5s ease-out'
   },
   popupHeader: {
-    padding: '1.5rem',
     color: 'white',
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem'
   },
   popupIcon: {
-    fontSize: '1.5rem'
+    fontSize: '1.5rem',
+    animation: 'bounce 1s infinite'
   },
   popupTitle: {
     margin: 0,
-    fontSize: '1.2rem',
     fontWeight: '600'
   },
   popupContent: {
-    padding: '1.5rem'
+    
   },
   popupText: {
     margin: '0.5rem 0',
@@ -420,18 +566,17 @@ const styles = {
     color: '#374151'
   },
   popupButtons: {
-    padding: '0 1.5rem 1.5rem 1.5rem'
+    
   },
   popupButton: {
     width: '100%',
-    padding: '1rem',
     color: 'white',
     border: 'none',
-    fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    borderRadius: '10px'
+    borderRadius: '12px',
+    backdropFilter: 'blur(10px)'
   },
   loadingOverlay: {
     position: 'fixed',
@@ -443,19 +588,21 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9999
+    zIndex: 9999,
+    backdropFilter: 'blur(10px)'
   },
   loadingContent: {
-    background: 'white',
-    padding: '2rem',
-    borderRadius: '16px',
+    background: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: '20px',
     textAlign: 'center',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   loadingSpinner: {
-    width: '40px',
-    height: '40px',
-    border: '4px solid #f3f4f6',
+    width: '50px',
+    height: '50px',
+    border: '4px solid rgba(243, 244, 246, 0.8)',
     borderTop: '4px solid #3b82f6',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
@@ -467,12 +614,104 @@ const styles = {
     fontWeight: '500'
   }
 };
-// Animasi spin
+
+// Add enhanced CSS animations
 const style = document.createElement('style');
 style.textContent = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+  
+  @keyframes logoFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+  }
+  
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes cardEntrance {
+    0% { 
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    100% { 
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes popupEntrance {
+    0% { 
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+    }
+    100% { 
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40%, 43% {
+      transform: translateY(-8px);
+    }
+    70% {
+      transform: translateY(-4px);
+    }
+    90% {
+      transform: translateY(-2px);
+    }
+  }
+  
+  @keyframes wiggle {
+    0%, 7% { transform: rotate(0); }
+    2% { transform: rotate(-5deg); }
+    4% { transform: rotate(5deg); }
+    6% { transform: rotate(0); }
+  }
+  
+  /* Enhanced mobile optimizations */
+  @media (max-width: 768px) {
+    input, button {
+      font-size: 16px !important;
+    }
+    
+    .logoTitle {
+      font-size: 2rem !important;
+    }
+    
+    .logoSubtitle {
+      font-size: 1rem !important;
+    }
+  }
+  
+  /* Hover effects */
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  }
+  
+  input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
   }
 `;
 document.head.appendChild(style);
