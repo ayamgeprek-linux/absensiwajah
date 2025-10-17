@@ -120,41 +120,50 @@ const UserRegistrationApp = ({ onNavigate }) => {
 
   // Register User
   const registerUser = async (userData) => {
-    try {
-      if (!cameraActive) {
-        showPopup('warning', 'Kamera Belum Aktif', 'Silakan aktifkan kamera terlebih dahulu');
-        return false;
-      }
-
-      const imageBlob = await captureImage();
-      // 🚀 Ganti kode register fetch() kamu dengan ini:
-       const formData = new FormData();
-       formData.append("file", selectedFile);   // <- foto wajah (Blob/File)
-       formData.append("name", name);
-       formData.append("user_id", userId);
-       formData.append("password", password);
-
-const response = await fetch(`${API_BASE}/register`, {
-  method: "POST",
-  body: formData, // ❌ Jangan pakai headers Content-Type manual!
-});
-
-const result = await response.json();
-console.log(result);
-      
-      if (result.success) {
-        showPopup('success', 'Registrasi Berhasil! 🎉', 
-          `Selamat ${userData.name}!\n\n🆔 ${userData.userId}\n🔐 Password telah disimpan\n⏰ ${new Date().toLocaleString('id-ID')}\n\nKlik "Lanjut ke Login" untuk masuk ke sistem.`
-        );
-        return true;
-      } else {
-        throw new Error(result.error || 'Registrasi gagal');
-      }
-    } catch (error) {
-      showPopup('error', 'Registrasi Gagal', error.message);
+  // Register User
+const registerUser = async (userData) => {
+  try {
+    if (!cameraActive) {
+      showPopup('warning', 'Kamera Belum Aktif', 'Silakan aktifkan kamera terlebih dahulu');
       return false;
     }
-  };
+
+    // 📸 Ambil foto dari kamera
+    const imageBlob = await captureImage();
+
+    // 📦 Buat FormData buat dikirim ke Flask
+    const formData = new FormData();
+    formData.append("file", imageBlob, `${userData.userId}.jpg`);
+    formData.append("name", userData.name);
+    formData.append("user_id", userData.userId);
+    formData.append("password", userData.password);
+
+    // 🚀 Kirim ke backend
+    const response = await fetch(`${API_BASE}/register`, {
+      method: "POST",
+      body: formData, // ❌ Jangan set header Content-Type manual!
+    });
+
+    const result = await response.json();
+    console.log("✅ Register result:", result);
+
+    if (result.success) {
+      showPopup(
+        'success',
+        'Registrasi Berhasil! 🎉',
+        `Selamat ${userData.name}!\n\n🆔 ${userData.userId}\n🔐 Password tersimpan\n⏰ ${new Date().toLocaleString('id-ID')}\n\nKlik "Lanjut ke Login" untuk masuk ke sistem.`
+      );
+      return true;
+    } else {
+      throw new Error(result.error || 'Registrasi gagal');
+    }
+  } catch (error) {
+    console.error('❌ Register error:', error);
+    showPopup('error', 'Registrasi Gagal', error.message);
+    return false;
+  }
+};
+    
 
   const handleSubmit = async (e) => {
     e.preventDefault();
