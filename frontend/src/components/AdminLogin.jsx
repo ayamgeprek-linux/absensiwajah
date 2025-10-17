@@ -182,7 +182,8 @@ const AdminLogin = ({ onNavigate }) => {
 };
 
 // (CSS styles sama kayak punyamu, ga perlu diubah)
-const styles = { app:
+const styles = { 
+  app:{
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
     fontFamily: 'Inter, system-ui, sans-serif'
